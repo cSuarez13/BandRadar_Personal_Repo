@@ -4,8 +4,6 @@ export async function GET(request: Request) {
   if (!combinedPlatformAndState) {
     return Response.json({ error: 'Invalid state' }, { status: 400 });
   }
-  // strip platform to return state as it was set on the client
-  const platform = combinedPlatformAndState.split('|')[0];
   const state = combinedPlatformAndState.split('|')[1];
 
   const outgoingParams = new URLSearchParams({
@@ -13,9 +11,5 @@ export async function GET(request: Request) {
     state,
   });
 
-  return Response.redirect(
-    (platform === 'web' ? process.env.BASE_URL : process.env.APP_SCHEME) +
-    '?' +
-    outgoingParams.toString()
-  );
+  return Response.redirect(process.env.APP_SCHEME + '?' + outgoingParams.toString());
 }

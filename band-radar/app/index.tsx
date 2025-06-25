@@ -5,6 +5,7 @@ import { Button } from 'react-native';
 
 WebBrowser.maybeCompleteAuthSession();
 
+export const SCHEMA = 'exp://10.10.1.71:8081';
 // Endpoint
 const discovery = {
   authorizationEndpoint: 'https://accounts.spotify.com/authorize',
@@ -16,15 +17,30 @@ export default function App() {
     {
       clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!,
       scopes: ['user-read-private', 'user-read-email'],
-      redirectUri: makeRedirectUri(),
+      redirectUri: makeRedirectUri({
+        scheme: SCHEMA,
+      }),
     },
     discovery
   );
 
   useEffect(() => {
-    if (response?.type === 'success') {
-      const { code } = response.params;
-    }
+    const fetchTokens = async () => {
+      if (response?.type === 'success') {
+        const { code } = response.params;
+
+        const res = await fetch('/api/auth/exchange', {
+          method: 'POST',
+          body: JSON.stringify({ code }),
+        });
+
+        const data = await res.json();
+
+        console.log(data);
+      }
+    };
+
+    fetchTokens();
   }, [response]);
 
   return (

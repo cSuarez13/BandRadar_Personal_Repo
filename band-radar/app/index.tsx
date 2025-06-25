@@ -1,19 +1,39 @@
-import { Stack, Link } from 'expo-router';
+import { useEffect } from 'react';
+import * as WebBrowser from 'expo-web-browser';
+import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
+import { Button } from 'react-native';
 
-import { Button } from '~/components/Button';
-import { Container } from '~/components/Container';
-import { ScreenContent } from '~/components/ScreenContent';
+WebBrowser.maybeCompleteAuthSession();
 
-export default function Home() {
+// Endpoint
+const discovery = {
+  authorizationEndpoint: 'https://accounts.spotify.com/authorize',
+  tokenEndpoint: 'https://accounts.spotify.com/api/token',
+};
+
+export default function App() {
+  const [request, response, promptAsync] = useAuthRequest(
+    {
+      clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!,
+      scopes: ['user-read-private', 'user-read-email'],
+      redirectUri: makeRedirectUri(),
+    },
+    discovery
+  );
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { code } = response.params;
+    }
+  }, [response]);
+
   return (
-    <>
-      <Stack.Screen options={{ title: 'Home' }} />
-      <Container>
-        <ScreenContent path="app/index.tsx" title="Home"></ScreenContent>
-        <Link href={{ pathname: '/details', params: { name: 'Dan' } }} asChild>
-          <Button title="Show Details" />
-        </Link>
-      </Container>
-    </>
+    <Button
+      disabled={!request}
+      title="Login"
+      onPress={() => {
+        promptAsync();
+      }}
+    />
   );
 }

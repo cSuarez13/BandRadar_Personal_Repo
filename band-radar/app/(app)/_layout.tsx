@@ -17,7 +17,7 @@ export default function AppLayout() {
         headerLeft: () => (
           <View>
             <Image
-              source={{ uri: session?.user.images[0].url }}
+              source={{ uri: session?.user.images?.[0]?.url }}
               style={{ width: 30, height: 30, borderRadius: 999 }}
             />
           </View>

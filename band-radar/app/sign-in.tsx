@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import { Button } from 'react-native';
+import { useSession } from '~/context/ctx';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -12,7 +13,7 @@ const discovery = {
   tokenEndpoint: 'https://accounts.spotify.com/api/token',
 };
 
-export default function App() {
+export default function SignIn() {
   const [request, response, promptAsync] = useAuthRequest(
     {
       clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!,
@@ -23,6 +24,8 @@ export default function App() {
     },
     discovery
   );
+
+  const { signIn } = useSession();
 
   useEffect(() => {
     const fetchTokens = async () => {
@@ -36,12 +39,12 @@ export default function App() {
 
         const data = await res.json();
 
-        console.log(data);
+        signIn(data);
       }
     };
 
     fetchTokens();
-  }, [response, request?.codeVerifier]);
+  }, [response, request?.codeVerifier, signIn]);
 
   return (
     <Button

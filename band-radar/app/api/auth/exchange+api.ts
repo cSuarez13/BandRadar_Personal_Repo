@@ -1,5 +1,5 @@
 export async function POST(request: Request) {
-  const { code } = await request.json();
+  const { code, codeVerifier } = await request.json();
 
   const client_id = process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!;
   const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
@@ -7,10 +7,11 @@ export async function POST(request: Request) {
   const { url, ...init } = getTokenReqConfig(
     {
       code,
-      redirect_uri: process.env.APP_SCHEME + '/api/auth/callback',
+      redirect_uri: process.env.APP_SCHEME!,
       grant_type: 'authorization_code',
       client_secret,
       client_id,
+      code_verifier: codeVerifier,
     },
     {
       client_id,

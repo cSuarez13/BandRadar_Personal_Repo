@@ -31,7 +31,7 @@ export default function App() {
 
         const res = await fetch('/api/auth/exchange', {
           method: 'POST',
-          body: JSON.stringify({ code }),
+          body: JSON.stringify({ code, codeVerifier: request?.codeVerifier }),
         });
 
         const data = await res.json();
@@ -41,7 +41,7 @@ export default function App() {
     };
 
     fetchTokens();
-  }, [response]);
+  }, [response, request?.codeVerifier]);
 
   return (
     <Button

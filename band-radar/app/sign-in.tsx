@@ -6,7 +6,7 @@ import { useSession } from '~/context/ctx';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export const SCHEMA = 'exp://10.10.1.71:8081';
+export const SCHEMA = process.env.EXPO_PUBLIC_APP_SCHEME;
 // Endpoint
 const discovery = {
   authorizationEndpoint: 'https://accounts.spotify.com/authorize',
@@ -29,6 +29,7 @@ export default function SignIn() {
 
   useEffect(() => {
     const fetchTokens = async () => {
+      console.log('response', response);
       if (response?.type === 'success') {
         const { code } = response.params;
 

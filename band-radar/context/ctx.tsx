@@ -1,10 +1,46 @@
 import { use, createContext, type PropsWithChildren } from 'react';
 import { useStorageState } from './useStorageState';
 
+export type Session = {
+  token: {
+    access_token: string;
+    refresh_token: string;
+    token_type: string;
+    expires_in: number;
+    scope: string;
+  };
+  user: {
+    country: string;
+    display_name: string;
+    email: string;
+    explicit_content: {
+      filter_enabled: boolean;
+      filter_locked: boolean;
+    };
+    external_urls: {
+      spotify: string;
+    };
+    followers: {
+      href: string | null;
+      total: number;
+    };
+    href: string | null;
+    id: string;
+    images: {
+      height: number | null;
+      url: string;
+      width: number | null;
+    }[];
+    product: string;
+    type: string;
+    uri: string;
+  };
+};
+
 const AuthContext = createContext<{
-  signIn: (data: any) => void;
+  signIn: (data: Session['token']) => void;
   signOut: () => void;
-  session?: string | null;
+  session?: Session | null;
   isLoading: boolean;
 }>({
   signIn: () => null,
@@ -29,9 +65,28 @@ export function SessionProvider({ children }: PropsWithChildren) {
   return (
     <AuthContext
       value={{
-        signIn: (data: any) => {
+        signIn: async (data: Session['token']) => {
           // Perform sign-in logic here
-          setSession(data);
+          const response = await fetch('https://api.spotify.com/v1/me', {
+            headers: {
+              Authorization: `Bearer ${data.access_token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          if (!response.ok) {
+            throw new Error('Failed to fetch user');
+          }
+
+          const user = await response.json();
+
+          const session = {
+            token: {
+              ...data,
+            },
+            user,
+          };
+
+          setSession(session);
         },
         signOut: () => {
           setSession(null);

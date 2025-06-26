@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   const { url, ...init } = getTokenReqConfig(
     {
       code,
-      redirect_uri: process.env.APP_SCHEME!,
+      redirect_uri: process.env.EXPO_PUBLIC_APP_SCHEME!,
       grant_type: 'authorization_code',
       client_secret,
       client_id,

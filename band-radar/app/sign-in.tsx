@@ -46,13 +46,43 @@ export default function SignIn() {
     fetchTokens();
   }, [response, request?.codeVerifier, signIn]);
 
+  async function signInWithRefreshToken() {
+    const res = await fetch('/api/auth/refresh', {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify({ refresh_token: process.env.EXPO_PUBLIC_SPOTIFY_REFRESH_TOKEN }),
+    });
+
+    const data = await res.json();
+
+    console.log(data);
+
+    const newData = {
+      ...data,
+      refresh_token: process.env.EXPO_PUBLIC_SPOTIFY_REFRESH_TOKEN,
+    };
+
+    signIn(newData);
+  }
+
   return (
-    <Button
-      disabled={!request}
-      title="Login"
-      onPress={() => {
-        promptAsync();
-      }}
-    />
+    <>
+      <Button
+        disabled={!request}
+        title="Login"
+        onPress={() => {
+          promptAsync();
+        }}
+      />
+
+      <Button
+        title="Sign in with refresh token"
+        onPress={async () => {
+          signInWithRefreshToken();
+        }}
+      />
+    </>
   );
 }

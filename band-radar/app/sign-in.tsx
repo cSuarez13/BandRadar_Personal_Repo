@@ -289,9 +289,10 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
   logoContainer: {
+    objectFit: 'contain',
     marginBottom: 48,
     width: width * 0.8,
-    height: height * 0.4,
+    height: width * 0.4,
   },
   logoWrapper: {
     position: 'relative',
@@ -301,16 +302,18 @@ const styles = StyleSheet.create({
   },
   outerRing: {
     position: 'absolute',
+    objectFit: 'contain',
     width: width * 0.65,
-    height: height * 0.45,
+    height: width * 0.45,
     borderWidth: 2,
     borderColor: '#00ff41',
     borderRadius: 12,
     opacity: 0.3,
   },
   logoImageContainer: {
+    objectFit: 'contain',
     width: width * 0.6,
-    height: height * 0.4,
+    height: width * 0.4,
     borderRadius: 8,
     overflow: 'hidden',
     shadowColor: '#00ff41',
@@ -342,7 +345,8 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
-    maxWidth: 320,
+    maxWidth: 300,
+    height: 40,
     position: 'relative',
   },
   loginButton: {

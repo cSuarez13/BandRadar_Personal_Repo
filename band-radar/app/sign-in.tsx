@@ -57,8 +57,6 @@ export default function SignIn() {
 
     const data = await res.json();
 
-    console.log(data);
-
     const newData = {
       ...data,
       refresh_token: process.env.EXPO_PUBLIC_SPOTIFY_REFRESH_TOKEN,

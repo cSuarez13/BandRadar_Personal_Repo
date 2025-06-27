@@ -1,7 +1,16 @@
 import { useEffect, useRef } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
-import {View, Text, Animated, Pressable, Image, StyleSheet, Dimensions, Button} from 'react-native';
+import {
+  View,
+  Text,
+  Animated,
+  Pressable,
+  Image,
+  StyleSheet,
+  Dimensions,
+  Button,
+} from 'react-native';
 import { useSession } from '~/context/ctx';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -18,14 +27,14 @@ const { width, height } = Dimensions.get('window');
 
 export default function SignIn() {
   const [request, response, promptAsync] = useAuthRequest(
-      {
-        clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!,
-        scopes: ['user-read-private', 'user-read-email'],
-        redirectUri: makeRedirectUri({
-          scheme: SCHEMA,
-        }),
-      },
-      discovery
+    {
+      clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!,
+      scopes: ['user-read-private', 'user-read-email'],
+      redirectUri: makeRedirectUri({
+        scheme: SCHEMA,
+      }),
+    },
+    discovery
   );
 
   const { signIn } = useSession();
@@ -94,8 +103,6 @@ export default function SignIn() {
       }, 1200);
     };
 
-
-
     animateIn();
 
     // Continuous title pulse animation
@@ -156,92 +163,95 @@ export default function SignIn() {
   }, [response, request?.codeVerifier, signIn]);
 
   return (
-      <View style={styles.container}>
-        {/* Animated Background Elements */}
-        <View style={styles.backgroundGlow2} />
+    <View style={styles.container}>
+      {/* Animated Background Elements */}
+      <View style={styles.backgroundGlow2} />
 
-        {/* Title with Animation */}
-        <Animated.View
-            style={[
-              styles.titleContainer,
-              {
-                opacity: titleOpacity,
-                transform: [{ scale: titleScale }, { scale: titlePulse }],
-              },
-            ]}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.titleBand}>Band</Text>
-            <Text style={styles.titleRadar}>Radar</Text>
+      {/* Title with Animation */}
+      <Animated.View
+        style={[
+          styles.titleContainer,
+          {
+            opacity: titleOpacity,
+            transform: [{ scale: titleScale }, { scale: titlePulse }],
+          },
+        ]}>
+        <View style={styles.titleWrapper}>
+          <Text style={styles.titleBand}>Band</Text>
+          <Text style={styles.titleRadar}>Radar</Text>
+        </View>
+
+        {/* Animated underline */}
+        <Animated.View style={[styles.titleUnderline, { opacity: titleOpacity }]} />
+      </Animated.View>
+
+      <Animated.View
+        style={[
+          styles.logoContainer,
+          {
+            opacity: logoOpacity,
+            transform: [{ scale: logoScale }],
+          },
+        ]}>
+        <View style={styles.logoWrapper}>
+          <View style={styles.outerRing} />
+
+          <View style={styles.logoImageContainer}>
+            <Image
+              source={require('~/assets/BandRadarIcon.jpg')}
+              style={styles.logoImage}
+              resizeMode="cover"
+            />
           </View>
+        </View>
+      </Animated.View>
 
-          {/* Animated underline */}
-          <Animated.View style={[styles.titleUnderline, { opacity: titleOpacity }]} />
-        </Animated.View>
+      {/* Description Text */}
+      <Animated.View style={[styles.descriptionContainer, { opacity: contentOpacity }]}>
+        <Text style={styles.descriptionText}>
+          Discover live {'\n'} <Text style={styles.descriptionHighlight}>music</Text> based on your{' '}
+          <Text style={styles.descriptionHighlight}>vibe</Text>
+        </Text>
+      </Animated.View>
 
-        <Animated.View
-            style={[
-              styles.logoContainer,
-              {
-                opacity: logoOpacity,
-                transform: [{ scale: logoScale }],
-              },
-            ]}>
-          <View style={styles.logoWrapper}>
-            <View style={styles.outerRing} />
-
-            <View style={styles.logoImageContainer}>
-              <Image
-                  source={require('~/assets/BandRadarIcon.jpg')}
-                  style={styles.logoImage}
-                  resizeMode="cover"
-              />
-            </View>
+      {/* Login Button */}
+      <Animated.View
+        style={[
+          styles.buttonContainer,
+          {
+            transform: [{ scale: buttonScale }],
+            opacity: contentOpacity,
+          },
+        ]}>
+        <Pressable
+          disabled={!request}
+          onPress={() => promptAsync()}
+          style={({ pressed }) => [styles.loginButton, pressed && styles.loginButtonPressed]}>
+          <View style={styles.buttonContent}>
+            <Ionicons name="musical-notes" size={24} color="#000000" />
+            <Text style={styles.buttonText}>Continue with Spotify</Text>
           </View>
-        </Animated.View>
+        </Pressable>
 
-        {/* Description Text */}
-        <Animated.View style={[styles.descriptionContainer, { opacity: contentOpacity }]}>
-          <Text style={styles.descriptionText}>
-            Discover live {'\n'} <Text style={styles.descriptionHighlight}>music</Text> based on your{' '}
-            <Text style={styles.descriptionHighlight}>vibe</Text>
-          </Text>
-        </Animated.View>
+        {/* Button glow effect */}
+        <View style={styles.buttonGlow} />
+      </Animated.View>
 
-        {/* Login Button */}
-        <Animated.View
-            style={[
-              styles.buttonContainer,
-              {
-                transform: [{ scale: buttonScale }],
-                opacity: contentOpacity,
-              },
-            ]}>
-          <Pressable
-              disabled={!request}
-              onPress={() => promptAsync()}
-              style={({ pressed }) => [styles.loginButton, pressed && styles.loginButtonPressed]}>
-            <View style={styles.buttonContent}>
-              <Ionicons name="musical-notes" size={24} color="#000000" />
-              <Text style={styles.buttonText}>Continue with Spotify</Text>
-            </View>
-          </Pressable>
+      {/* Refresh Token Button - Moved lower */}
+      <Animated.View style={[styles.refreshButtonContainer, { opacity: contentOpacity }]}>
+        <Button
+          title="Sign in with refresh token"
+          onPress={async () => {
+            signInWithRefreshToken();
+          }}
+        />
+      </Animated.View>
 
-          <Button
-              title="Sign in with refresh token"
-              onPress={async () => {
-                signInWithRefreshToken();
-              }}
-          />
-
-          {/* Button glow effect */}
-          <View style={styles.buttonGlow} />
-        </Animated.View>
-
-        {/* Bottom tagline */}
-        <Animated.View style={[styles.taglineContainer, { opacity: contentOpacity }]}>
-          <Text style={styles.taglineText}>Your next favorite show is waiting</Text>
-        </Animated.View>
-      </View>
+      {/* Bottom tagline */}
+      <Animated.View style={[styles.taglineContainer, { opacity: contentOpacity }]}>
+        <Text style={styles.taglineText}>Your next favorite show is waiting</Text>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -346,8 +356,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: '100%',
     maxWidth: 300,
-    height: 40,
     position: 'relative',
+    marginBottom: 20,
   },
   loginButton: {
     backgroundColor: '#00ff41',
@@ -362,6 +372,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loginButtonPressed: {
     transform: [{ scale: 0.95 }],
@@ -370,12 +382,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    width: '100%',
   },
   buttonText: {
     color: '#000000',
     fontSize: 18,
     fontWeight: 'bold',
     marginLeft: 12,
+    textAlign: 'center',
   },
   buttonGlow: {
     position: 'absolute',
@@ -387,6 +401,11 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     opacity: 0.2,
     zIndex: -1,
+  },
+  // Style for the refresh button container
+  refreshButtonContainer: {
+    marginTop: 20,
+    marginBottom: 40,
   },
   taglineContainer: {
     position: 'absolute',

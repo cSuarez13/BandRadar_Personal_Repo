@@ -85,14 +85,6 @@ export default function Index() {
       {/* Header area with Sign Out button */}
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
 
-        <View>
-          <Link href={{
-            pathname: '/[id]',
-            params: { id: '1A8ZkAYGkdOQfsK' }
-          }}>
-            Open modal
-          </Link>
-        </View>
         <Text
           style={{
             color: 'white',

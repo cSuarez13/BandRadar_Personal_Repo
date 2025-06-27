@@ -73,88 +73,73 @@ export default function Index() {
   }
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#121212' }}>
-      {/* Component to pick user location */}
-      <LocationPicker />
-
+    <View style={{ flex: 1, backgroundColor: '#121212' }}>
       {/* Header area with Sign Out button */}
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-       
-        <Text
-          style={{
-            color: 'white',
-            fontSize: 16,
-            marginBottom: 12,
-            textAlign: 'right',
-          }}
-          onPress={signOut}
-        >
-          Sign Out
-        </Text>
-
         {/* Dynamic Date and Location Buttons */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: 20,
-            marginBottom: 20,
-            paddingHorizontal: 16,
-          }}
-        >
-          {/* 📍 Location Display Box */}
-          <View
-            style={{
-              backgroundColor: '#2a2a2a',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 16 }}>
-              📍 { `${location?.lat.toFixed(2)}, ${location?.lng.toFixed(2)}`}
-            </Text>
-          </View>
-
-          {/* 📅 Date Picker Box */}
-          <Pressable
-            onPress={() => setShowPicker(true)}
-            style={{
-              backgroundColor: '#2a2a2a',
-              paddingVertical: 12,
-              paddingHorizontal: 16,
-              borderRadius: 12,
-            }}
-          >
-            <Text style={{ color: 'white', fontSize: 16 }}>
-              📅 {selectedDate.toDateString()}
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* Show native date picker modal */}
-        {showPicker && (
-          <DateTimePicker
-            value={selectedDate}
-            mode="date"
-            display="default"
-            onChange={(event, date) => {
-              setShowPicker(false);
-              if (date) setSelectedDate(date);
-            }}
-          />
-        )}
-
-        {/* Recommended Concerts Header */}
-        <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'grey', marginBottom: 16 }}>
-          Recommended Concerts
-        </Text>
 
         {/* List of Recommended Concerts using FlatList */}
         <FlatList
           data={events?._embedded?.events || []}
           keyExtractor={(item) => item.id}
+          ListHeaderComponent={() => (
+            <>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginTop: 20,
+                  marginBottom: 20,
+                  paddingHorizontal: 16,
+                }}>
+                {/* 📍 Location Display Box */}
+                <View
+                  style={{
+                    backgroundColor: '#2a2a2a',
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 12,
+                  }}>
+                  <Text style={{ color: 'white', fontSize: 16 }}>
+                    📍 {`${location?.lat.toFixed(2)}, ${location?.lng.toFixed(2)}`}
+                  </Text>
+                </View>
+
+                {/* 📅 Date Picker Box */}
+                <Pressable
+                  onPress={() => setShowPicker(true)}
+                  style={{
+                    backgroundColor: '#2a2a2a',
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderRadius: 12,
+                  }}>
+                  <Text style={{ color: 'white', fontSize: 16 }}>
+                    📅 {selectedDate.toDateString()}
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Show native date picker modal */}
+              {showPicker && (
+                <DateTimePicker
+                  value={selectedDate}
+                  mode="date"
+                  display="default"
+                  onChange={(event, date) => {
+                    setShowPicker(false);
+                    if (date) setSelectedDate(date);
+                  }}
+                />
+              )}
+
+              {/* Recommended Concerts Header */}
+              <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'grey', marginBottom: 16 }}>
+                Recommended Concerts
+              </Text>
+            </>
+          )}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => console.log('Clicked:', item.name)}
@@ -164,8 +149,7 @@ export default function Index() {
                 marginBottom: 16,
                 width: 320,
                 overflow: 'hidden',
-              }}
-            >
+              }}>
               {/* Concert image */}
               {item.images?.[0]?.url && (
                 <Image
@@ -177,7 +161,9 @@ export default function Index() {
 
               {/* Concert name and details */}
               <View style={{ padding: 12 }}>
-                <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>{item.name}</Text>
+                <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>
+                  {item.name}
+                </Text>
                 <Text style={{ color: '#f0f0f0', marginTop: 4 }}>
                   📍 {item._embedded?.venues?.[0]?.name} | 🗓️ {item.dates?.start?.localDate}
                 </Text>
@@ -187,6 +173,6 @@ export default function Index() {
           contentContainerStyle={{ alignItems: 'center', paddingBottom: 80 }}
         />
       </View>
-    </ScrollView>
+    </View>
   );
 }

@@ -1,4 +1,4 @@
-import { Stack } from 'expo-router';
+import { Stack, Link } from 'expo-router';
 import { Image, Pressable, View, StyleSheet } from 'react-native';
 import { useSession } from '~/context/ctx';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,13 +33,21 @@ export default function AppLayout() {
           </Pressable>
         ),
       }}>
-      <Stack.Screen name="(root)" />
-      <Stack.Screen
-        name="sign-in"
-        options={{
+        {/*<Stack.Screen name="(root)" />
+        <Stack.Screen
+         name="sign-in"
+         options={{
           presentation: 'modal',
-        }}
-      />
+         }}
+        />*/}
+        <Stack.Screen
+            name="index"
+        />
+        <Stack.Screen
+            name="modal"
+            options={{
+                presentation: 'modal',
+            }}/>
     </Stack>
   );
 }

@@ -1,17 +1,18 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 import {
-  ScrollView,
-  Text,
-  View,
+  ActivityIndicator,
   FlatList,
   Image,
-  ActivityIndicator,
   Pressable,
+  ScrollView,
+  Text,
   TouchableOpacity,
+  View,
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 
 import LocationPicker from '~/components/LocationPicker';
+
 import { useSession } from '~/context/ctx';
 import { TicketmasterEventResponse } from '~/types';
 import { getEvents } from '~/utils/events';
@@ -78,6 +79,7 @@ export default function Index() {
 
       {/* Header area with Sign Out button */}
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+       
         <Text
           style={{
             color: 'white',
@@ -111,7 +113,7 @@ export default function Index() {
             }}
           >
             <Text style={{ color: 'white', fontSize: 16 }}>
-              📍 {location?.city || `${location?.lat.toFixed(2)}, ${location?.lng.toFixed(2)}`}
+              📍 { `${location?.lat.toFixed(2)}, ${location?.lng.toFixed(2)}`}
             </Text>
           </View>
 

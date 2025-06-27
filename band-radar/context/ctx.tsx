@@ -1,6 +1,7 @@
 import { use, createContext, type PropsWithChildren, useEffect, useState } from 'react';
 import { useStorageState } from './useStorageState';
 import { extractUserPlaylistGenres, GenreCount } from '~/utils/playlists';
+import { genreMap } from '~/constants';
 
 export type Session = {
   token: {
@@ -41,19 +42,36 @@ export type Session = {
 const AuthContext = createContext<{
   signIn: (data: Session['token']) => void;
   signOut: () => void;
+
   session?: Session | null;
-  genres: GenreCount[] | null;
-  isLoadingGenres: boolean;
   isLoading: boolean;
+
+  genres: { id: string; name: string }[] | null;
+
+  isLoadingGenres: boolean;
   isCompilingGenres: boolean;
+
+  isLoadingLocation: boolean;
+  location: {
+    lat: number;
+    lng: number;
+  } | null;
+  setLocation: (location: { lat: number; lng: number }) => void;
 }>({
   signIn: () => null,
   signOut: () => null,
+
   session: null,
+  isLoading: false,
+
   genres: null,
   isLoadingGenres: false,
-  isLoading: false,
+
   isCompilingGenres: false,
+
+  isLoadingLocation: false,
+  location: null,
+  setLocation: () => null,
 });
 
 // This hook can be used to access the user info.
@@ -68,19 +86,39 @@ export function useSession() {
 
 export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoading, session], setSession] = useStorageState<Session | null>('session');
-  const [[isLoadingGenres, genres], setGenres] = useStorageState<GenreCount[] | null>('genres');
+  const [[isLoadingGenres, genres], setGenres] = useStorageState<
+    { id: string; name: string }[] | null
+  >('genres');
   const [isCompilingGenres, setIsCompilingGenres] = useState(false);
+  const [[isLoadingLocation, location], setLocation] = useStorageState<{
+    lat: number;
+    lng: number;
+  } | null>('location');
 
   useEffect(() => {
     if (session && !genres) {
       async function getGenres() {
-        console.log('settings genres');
         if (!session) return;
         try {
           setIsCompilingGenres(true);
 
           const genres = await extractUserPlaylistGenres(session.token.access_token);
-          setGenres(genres);
+
+          // Mapping Spotify genres to Ticketmaster genres, and removing duplicates
+          const mappedGenres = genres
+            .slice(0, 10)
+            .map((genre) => {
+              const genreMapItem = genreMap.find((g) => g.spotify_genres.includes(genre.name));
+              if (!genreMapItem) return null;
+              return {
+                id: genreMapItem.tm_id,
+                name: genreMapItem.tm_name,
+              };
+            })
+            .filter((g) => g !== null)
+            .filter((g, index, self) => self.findIndex((t) => t.id === g.id) === index);
+
+          setGenres(mappedGenres);
         } catch (error) {
           console.error(error);
         } finally {
@@ -121,12 +159,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
         signOut: () => {
           setSession(null);
           setGenres(null);
+          setLocation(null);
         },
         session,
         isLoading,
         genres,
         isLoadingGenres,
         isCompilingGenres,
+        isLoadingLocation,
+        location,
+        setLocation,
       }}>
       {children}
     </AuthContext>

@@ -165,7 +165,7 @@ export default function SignIn() {
   return (
     <View style={styles.container}>
       {/* Animated Background Elements */}
-      <View style={styles.backgroundGlow2} />
+      <View />
 
       {/* Title with Animation */}
       <Animated.View
@@ -194,7 +194,7 @@ export default function SignIn() {
           },
         ]}>
         <View style={styles.logoWrapper}>
-          <View style={styles.outerRing} />
+          <View />
 
           <View style={styles.logoImageContainer}>
             <Image
@@ -237,7 +237,6 @@ export default function SignIn() {
         <View style={styles.buttonGlow} />
       </Animated.View>
 
-      {/* Refresh Token Button - Moved lower */}
       <Animated.View style={[styles.refreshButtonContainer, { opacity: contentOpacity }]}>
         <Button
           title="Sign in with refresh token"
@@ -263,16 +262,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 32,
   },
-  backgroundGlow2: {
-    position: 'absolute',
-    bottom: height * 0.33,
-    right: width * 0.25,
-    width: 160,
-    height: 160,
-    backgroundColor: '#00ff41',
-    borderRadius: 80,
-    opacity: 0.05,
-  },
+
   titleContainer: {
     marginBottom: 32,
     alignItems: 'center',
@@ -299,48 +289,27 @@ const styles = StyleSheet.create({
     borderRadius: 1,
   },
   logoContainer: {
-    objectFit: 'contain',
-    marginBottom: 48,
-    width: width * 0.8,
-    height: width * 0.4,
+    marginBottom: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   logoWrapper: {
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-  },
-  outerRing: {
-    position: 'absolute',
-    objectFit: 'contain',
-    width: width * 0.65,
-    height: width * 0.45,
-    borderWidth: 2,
-    borderColor: '#00ff41',
-    borderRadius: 12,
-    opacity: 0.3,
   },
   logoImageContainer: {
-    objectFit: 'contain',
-    width: width * 0.6,
-    height: width * 0.4,
+    width: width * 0.8,
+    height: width * 0.5,
     borderRadius: 8,
     overflow: 'hidden',
-    shadowColor: '#00ff41',
-    shadowOffset: {
-      width: 0,
-      height: 0,
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 10,
   },
   logoImage: {
     width: '100%',
     height: '100%',
   },
   descriptionContainer: {
-    marginBottom: 64,
+    marginBottom: 40,
     paddingHorizontal: 16,
   },
   descriptionText: {
@@ -354,24 +323,18 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   buttonContainer: {
-    width: '100%',
-    maxWidth: 300,
+    width: width * 0.8,
+    height: width * 0.15,
     position: 'relative',
     marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loginButton: {
     backgroundColor: '#00ff41',
-    borderRadius: 16,
+    borderRadius: 18,
     paddingHorizontal: 32,
     paddingVertical: 16,
-    shadowColor: '#00ff41',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -382,27 +345,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',
   },
   buttonText: {
     color: '#000000',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginLeft: 12,
+    marginLeft: 4,
     textAlign: 'center',
   },
   buttonGlow: {
     position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    top: -2,
+    left: -2,
+    right: -2,
+    bottom: -2,
     backgroundColor: '#00ff41',
-    borderRadius: 16,
-    opacity: 0.2,
-    zIndex: -1,
+    borderRadius: 18,
+    opacity: 1,
+    zIndex: -2,
   },
-  // Style for the refresh button container
   refreshButtonContainer: {
     marginTop: 20,
     marginBottom: 40,

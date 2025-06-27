@@ -1,5 +1,6 @@
-import { use, createContext, type PropsWithChildren } from 'react';
+import { use, createContext, type PropsWithChildren, useEffect, useState } from 'react';
 import { useStorageState } from './useStorageState';
+import { extractUserPlaylistGenres, GenreCount } from '~/utils/playlists';
 
 export type Session = {
   token: {
@@ -41,12 +42,18 @@ const AuthContext = createContext<{
   signIn: (data: Session['token']) => void;
   signOut: () => void;
   session?: Session | null;
+  genres: GenreCount[] | null;
+  isLoadingGenres: boolean;
   isLoading: boolean;
+  isCompilingGenres: boolean;
 }>({
   signIn: () => null,
   signOut: () => null,
   session: null,
+  genres: null,
+  isLoadingGenres: false,
   isLoading: false,
+  isCompilingGenres: false,
 });
 
 // This hook can be used to access the user info.
@@ -60,7 +67,30 @@ export function useSession() {
 }
 
 export function SessionProvider({ children }: PropsWithChildren) {
-  const [[isLoading, session], setSession] = useStorageState('session');
+  const [[isLoading, session], setSession] = useStorageState<Session | null>('session');
+  const [[isLoadingGenres, genres], setGenres] = useStorageState<GenreCount[] | null>('genres');
+  const [isCompilingGenres, setIsCompilingGenres] = useState(false);
+
+  useEffect(() => {
+    if (session && !genres) {
+      async function getGenres() {
+        console.log('settings genres');
+        if (!session) return;
+        try {
+          setIsCompilingGenres(true);
+
+          const genres = await extractUserPlaylistGenres(session.token.access_token);
+          setGenres(genres);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setIsCompilingGenres(false);
+        }
+      }
+
+      getGenres();
+    }
+  }, [session?.token.access_token, genres, setGenres, isCompilingGenres, session]);
 
   return (
     <AuthContext
@@ -90,9 +120,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
         },
         signOut: () => {
           setSession(null);
+          setGenres(null);
         },
         session,
         isLoading,
+        genres,
+        isLoadingGenres,
+        isCompilingGenres,
       }}>
       {children}
     </AuthContext>

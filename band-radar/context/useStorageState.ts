@@ -1,7 +1,6 @@
 import { useEffect, useCallback, useReducer } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { Session } from './ctx';
 
 type UseStateHook<T> = [[boolean, T | null], (value: T | null) => void];
 
@@ -32,9 +31,9 @@ export async function setStorageItemAsync(key: string, value: string | null) {
   }
 }
 
-export function useStorageState(key: string): UseStateHook<Session | null> {
+export function useStorageState<T>(key: string): UseStateHook<T | null> {
   // Public
-  const [state, setState] = useAsyncState<Session | null>();
+  const [state, setState] = useAsyncState<T | null>();
 
   // Get
   useEffect(() => {
@@ -51,15 +50,15 @@ export function useStorageState(key: string): UseStateHook<Session | null> {
         setState(value ? JSON.parse(value) : null);
       });
     }
-  }, [key]);
+  }, [key, setState]);
 
   // Set
   const setValue = useCallback(
-    (value: Session | null) => {
+    (value: T | null) => {
       setState(value || null);
       setStorageItemAsync(key, value ? JSON.stringify(value) : null);
     },
-    [key]
+    [key, setState]
   );
 
   return [state, setValue];

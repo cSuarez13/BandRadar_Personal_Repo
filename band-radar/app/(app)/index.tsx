@@ -1,4 +1,5 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 
 import {
@@ -55,7 +56,13 @@ export default function Index() {
   // Show loading indicators for genres or events
   if (isCompilingGenres) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#121212',
+        }}>
         <Text style={{ color: 'white' }}>Compiling genres...</Text>
       </View>
     );
@@ -63,7 +70,13 @@ export default function Index() {
 
   if (isLoadingEvents) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#121212',
+        }}>
         <ActivityIndicator size="large" color="#1DB954" />
         <Text style={{ color: 'white', marginTop: 10 }}>Loading events...</Text>
       </View>
@@ -141,7 +154,12 @@ export default function Index() {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => {
-                console.log(item.id);
+                router.push({
+                  pathname: '/[id]',
+                  params: {
+                    id: item.id,
+                  },
+                });
               }}
               style={{
                 backgroundColor: '#696464',

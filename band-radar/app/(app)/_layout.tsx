@@ -44,7 +44,7 @@ export default function AppLayout() {
             name="index"
         />
         <Stack.Screen
-            name="modal"
+            name="[id]"
             options={{
                 presentation: 'modal',
             }}/>

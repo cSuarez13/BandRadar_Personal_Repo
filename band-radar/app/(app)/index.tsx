@@ -1,5 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
+
 import {
   ActivityIndicator,
   FlatList,
@@ -12,6 +14,7 @@ import {
 } from 'react-native';
 
 import LocationPicker from '~/components/LocationPicker';
+import {Link} from "expo-router";
 
 import { useSession } from '~/context/ctx';
 import { TicketmasterEventResponse } from '~/types';
@@ -72,14 +75,24 @@ export default function Index() {
     );
   }
 
-  return (
+    const router = useRouter();
+
+    return (
     <ScrollView style={{ flex: 1, backgroundColor: '#121212' }}>
       {/* Component to pick user location */}
       <LocationPicker />
 
       {/* Header area with Sign Out button */}
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-       
+
+        <View>
+          <Link href={{
+            pathname: '/[id]',
+            params: { id: '1A8ZkAYGkdOQfsK' }
+          }}>
+            Open modal
+          </Link>
+        </View>
         <Text
           style={{
             color: 'white',
@@ -157,7 +170,7 @@ export default function Index() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() => console.log('Clicked:', item.name)}
+              onPress={() => router.push(`/${item.id}`)}
               style={{
                 backgroundColor: '#696464',
                 borderRadius: 12,

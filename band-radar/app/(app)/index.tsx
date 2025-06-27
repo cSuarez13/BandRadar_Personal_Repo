@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import LocationPicker from '~/components/LocationPicker';
 
 import { useSession } from '~/context/ctx';
 import { TicketmasterEventResponse } from '~/types';
@@ -88,7 +89,7 @@ export default function Index() {
       {/* Header area with Sign Out button */}
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         {/* Dynamic Date and Location Buttons */}
-
+        <LocationPicker />
         {/* List of Recommended Concerts using FlatList */}
         <FlatList
           data={events?._embedded?.events || []}

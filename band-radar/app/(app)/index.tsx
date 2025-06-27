@@ -1,17 +1,15 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
+
 import {
   ActivityIndicator,
   FlatList,
   Image,
   Pressable,
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-
-import LocationPicker from '~/components/LocationPicker';
 
 import { useSession } from '~/context/ctx';
 import { TicketmasterEventResponse } from '~/types';
@@ -19,7 +17,7 @@ import { getEvents } from '~/utils/events';
 
 // Show recommended concerts based on Spotify genres
 export default function Index() {
-  const { signOut, isCompilingGenres, genres, location } = useSession();
+  const { isCompilingGenres, genres, location } = useSession();
 
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [events, setEvents] = useState<TicketmasterEventResponse | null>(null);
@@ -142,7 +140,9 @@ export default function Index() {
           )}
           renderItem={({ item }) => (
             <TouchableOpacity
-              onPress={() => console.log('Clicked:', item.name)}
+              onPress={() => {
+                console.log(item.id);
+              }}
               style={{
                 backgroundColor: '#696464',
                 borderRadius: 12,

@@ -1,50 +1,121 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
-import { Button } from 'react-native';
+import {View, Text, Animated, Pressable, Image, StyleSheet, Dimensions, Button} from 'react-native';
 import { useSession } from '~/context/ctx';
+import { Ionicons } from '@expo/vector-icons';
 
 WebBrowser.maybeCompleteAuthSession();
 
 export const SCHEMA = process.env.EXPO_PUBLIC_APP_SCHEME;
-// Endpoint
+
 const discovery = {
   authorizationEndpoint: 'https://accounts.spotify.com/authorize',
   tokenEndpoint: 'https://accounts.spotify.com/api/token',
 };
 
+const { width, height } = Dimensions.get('window');
+
 export default function SignIn() {
   const [request, response, promptAsync] = useAuthRequest(
-    {
-      clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!,
-      scopes: ['user-read-private', 'user-read-email'],
-      redirectUri: makeRedirectUri({
-        scheme: SCHEMA,
-      }),
-    },
-    discovery
+      {
+        clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID!,
+        scopes: ['user-read-private', 'user-read-email'],
+        redirectUri: makeRedirectUri({
+          scheme: SCHEMA,
+        }),
+      },
+      discovery
   );
 
   const { signIn } = useSession();
 
+  // Animation refs
+  const titleOpacity = useRef(new Animated.Value(0)).current;
+  const titleScale = useRef(new Animated.Value(0.5)).current;
+  const titlePulse = useRef(new Animated.Value(1)).current;
+  const logoOpacity = useRef(new Animated.Value(0)).current;
+  const logoScale = useRef(new Animated.Value(0.8)).current;
+  const contentOpacity = useRef(new Animated.Value(0)).current;
+  const buttonScale = useRef(new Animated.Value(0.8)).current;
+
   useEffect(() => {
-    const fetchTokens = async () => {
-      if (response?.type === 'success') {
-        const { code } = response.params;
+    // Sequence of animations
+    const animateIn = () => {
+      // Title animation
+      Animated.parallel([
+        Animated.timing(titleOpacity, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.spring(titleScale, {
+          toValue: 1,
+          tension: 50,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]).start();
 
-        const res = await fetch('/api/auth/exchange', {
-          method: 'POST',
-          body: JSON.stringify({ code, codeVerifier: request?.codeVerifier }),
-        });
+      // Logo animation
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(logoOpacity, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.spring(logoScale, {
+            toValue: 1,
+            tension: 60,
+            friction: 8,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      }, 300);
 
-        const data = await res.json();
+      // Content animation
+      setTimeout(() => {
+        Animated.timing(contentOpacity, {
+          toValue: 1,
+          duration: 600,
+          useNativeDriver: true,
+        }).start();
+      }, 800);
 
-        signIn(data);
-      }
+      // Button animation
+      setTimeout(() => {
+        Animated.spring(buttonScale, {
+          toValue: 1,
+          tension: 100,
+          friction: 8,
+          useNativeDriver: true,
+        }).start();
+      }, 1200);
     };
 
-    fetchTokens();
-  }, [response, request?.codeVerifier, signIn]);
+
+
+    animateIn();
+
+    // Continuous title pulse animation
+    const pulseAnimation = () => {
+      Animated.sequence([
+        Animated.timing(titlePulse, {
+          toValue: 1.05,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(titlePulse, {
+          toValue: 1,
+          duration: 1200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => pulseAnimation());
+    };
+
+    setTimeout(pulseAnimation, 2000);
+  }, []);
 
   async function signInWithRefreshToken() {
     const res = await fetch('/api/auth/refresh', {
@@ -65,22 +136,261 @@ export default function SignIn() {
     signIn(newData);
   }
 
-  return (
-    <>
-      <Button
-        disabled={!request}
-        title="Login"
-        onPress={() => {
-          promptAsync();
-        }}
-      />
+  useEffect(() => {
+    const fetchTokens = async () => {
+      console.log('response', response);
+      if (response?.type === 'success') {
+        const { code } = response.params;
 
-      <Button
-        title="Sign in with refresh token"
-        onPress={async () => {
-          signInWithRefreshToken();
-        }}
-      />
-    </>
+        const res = await fetch('/api/auth/exchange', {
+          method: 'POST',
+          body: JSON.stringify({ code, codeVerifier: request?.codeVerifier }),
+        });
+
+        const data = await res.json();
+        signIn(data);
+      }
+    };
+
+    fetchTokens();
+  }, [response, request?.codeVerifier, signIn]);
+
+  return (
+      <View style={styles.container}>
+        {/* Animated Background Elements */}
+        <View style={styles.backgroundGlow2} />
+
+        {/* Title with Animation */}
+        <Animated.View
+            style={[
+              styles.titleContainer,
+              {
+                opacity: titleOpacity,
+                transform: [{ scale: titleScale }, { scale: titlePulse }],
+              },
+            ]}>
+          <View style={styles.titleWrapper}>
+            <Text style={styles.titleBand}>Band</Text>
+            <Text style={styles.titleRadar}>Radar</Text>
+          </View>
+
+          {/* Animated underline */}
+          <Animated.View style={[styles.titleUnderline, { opacity: titleOpacity }]} />
+        </Animated.View>
+
+        <Animated.View
+            style={[
+              styles.logoContainer,
+              {
+                opacity: logoOpacity,
+                transform: [{ scale: logoScale }],
+              },
+            ]}>
+          <View style={styles.logoWrapper}>
+            <View style={styles.outerRing} />
+
+            <View style={styles.logoImageContainer}>
+              <Image
+                  source={require('~/assets/BandRadarIcon.jpg')}
+                  style={styles.logoImage}
+                  resizeMode="cover"
+              />
+            </View>
+          </View>
+        </Animated.View>
+
+        {/* Description Text */}
+        <Animated.View style={[styles.descriptionContainer, { opacity: contentOpacity }]}>
+          <Text style={styles.descriptionText}>
+            Discover live {'\n'} <Text style={styles.descriptionHighlight}>music</Text> based on your{' '}
+            <Text style={styles.descriptionHighlight}>vibe</Text>
+          </Text>
+        </Animated.View>
+
+        {/* Login Button */}
+        <Animated.View
+            style={[
+              styles.buttonContainer,
+              {
+                transform: [{ scale: buttonScale }],
+                opacity: contentOpacity,
+              },
+            ]}>
+          <Pressable
+              disabled={!request}
+              onPress={() => promptAsync()}
+              style={({ pressed }) => [styles.loginButton, pressed && styles.loginButtonPressed]}>
+            <View style={styles.buttonContent}>
+              <Ionicons name="musical-notes" size={24} color="#000000" />
+              <Text style={styles.buttonText}>Continue with Spotify</Text>
+            </View>
+          </Pressable>
+
+          <Button
+              title="Sign in with refresh token"
+              onPress={async () => {
+                signInWithRefreshToken();
+              }}
+          />
+
+          {/* Button glow effect */}
+          <View style={styles.buttonGlow} />
+        </Animated.View>
+
+        {/* Bottom tagline */}
+        <Animated.View style={[styles.taglineContainer, { opacity: contentOpacity }]}>
+          <Text style={styles.taglineText}>Your next favorite show is waiting</Text>
+        </Animated.View>
+      </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000000',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  backgroundGlow2: {
+    position: 'absolute',
+    bottom: height * 0.33,
+    right: width * 0.25,
+    width: 160,
+    height: 160,
+    backgroundColor: '#00ff41',
+    borderRadius: 80,
+    opacity: 0.05,
+  },
+  titleContainer: {
+    marginBottom: 32,
+    alignItems: 'center',
+  },
+  titleWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  titleBand: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  titleRadar: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#00ff41',
+  },
+  titleUnderline: {
+    height: 2,
+    width: 200,
+    backgroundColor: '#00ff41',
+    marginTop: 8,
+    borderRadius: 1,
+  },
+  logoContainer: {
+    marginBottom: 48,
+    width: width * 0.8,
+    height: height * 0.4,
+  },
+  logoWrapper: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  outerRing: {
+    position: 'absolute',
+    width: width * 0.65,
+    height: height * 0.45,
+    borderWidth: 2,
+    borderColor: '#00ff41',
+    borderRadius: 12,
+    opacity: 0.3,
+  },
+  logoImageContainer: {
+    width: width * 0.6,
+    height: height * 0.4,
+    borderRadius: 8,
+    overflow: 'hidden',
+    shadowColor: '#00ff41',
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  logoImage: {
+    width: '100%',
+    height: '100%',
+  },
+  descriptionContainer: {
+    marginBottom: 64,
+    paddingHorizontal: 16,
+  },
+  descriptionText: {
+    fontSize: 18,
+    color: '#cccccc',
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  descriptionHighlight: {
+    color: '#00ff41',
+    fontWeight: '600',
+  },
+  buttonContainer: {
+    width: '100%',
+    maxWidth: 320,
+    position: 'relative',
+  },
+  loginButton: {
+    backgroundColor: '#00ff41',
+    borderRadius: 16,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    shadowColor: '#00ff41',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  loginButtonPressed: {
+    transform: [{ scale: 0.95 }],
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#000000',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginLeft: 12,
+  },
+  buttonGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#00ff41',
+    borderRadius: 16,
+    opacity: 0.2,
+    zIndex: -1,
+  },
+  taglineContainer: {
+    position: 'absolute',
+    bottom: 64,
+  },
+  taglineText: {
+    color: '#666666',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+});

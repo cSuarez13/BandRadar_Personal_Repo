@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import LocationPicker from '~/components/LocationPicker';
+import {Link} from "expo-router";
 
 import { useSession } from '~/context/ctx';
 import { TicketmasterEventResponse } from '~/types';
@@ -51,6 +52,11 @@ export default function Index() {
   return (
     <ScrollView>
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View>
+          <Link href="/modal">
+            Open modal
+          </Link>
+        </View>
         <Text
           onPress={() => {
             // The `app/(app)/_layout.tsx` will redirect to the sign-in screen.

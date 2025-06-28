@@ -6,13 +6,7 @@ import { useEffect, useState } from "react";
 import ImageZoom from 'react-native-image-pan-zoom';
 
 import {SocialButton} from "~/components/socialButton";
-
-// Helper component for social links to keep the main component clean
-const SocialLink = ({ platform, url }) => (
-    <TouchableOpacity onPress={() => Linking.openURL(url)}>
-        <Text style={styles.socialLink}>{platform}</Text>
-    </TouchableOpacity>
-);
+import {VenueButton} from "~/components/venueButton";
 
 export default function Id() {
     const { id } = useLocalSearchParams();
@@ -89,7 +83,7 @@ export default function Id() {
 
                 <Text style={styles.section}>Venue</Text>
                 <Text style={[styles.text, styles.bold]}>{venue?.name}</Text>
-                {venueUrl && <SocialLink platform="Visit Venue Website" url={venueUrl} />}
+                {venueUrl && <VenueButton url={venueUrl} />}
                 <Text style={styles.text}>{venue?.address?.line1}</Text>
                 <Text style={styles.text}>{venue?.city?.name}, {venue?.state?.name}, {venue?.country?.name}</Text>
                 {venueImage && <Image source={{ uri: venueImage }} style={styles.venueImage} />}

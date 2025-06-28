@@ -6,7 +6,7 @@ interface PlateformUrl {
     url: string,
 }
 
-type PlateformType = 'youtube-play' | 'twitter' |'instagram' | 'facebook' | 'globe'| 'link' | "wikipedia";
+export type PlateformType = 'youtube-play' | 'twitter' |'instagram' | 'facebook' | 'globe'| 'link' | "wikipedia";
 
 
 export function SocialButton({ platform, url } : PlateformUrl):any{

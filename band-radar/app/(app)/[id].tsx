@@ -1,18 +1,30 @@
-import { ScrollView, StyleSheet, Text, View, Image, ActivityIndicator, TouchableOpacity, Linking, Dimensions } from 'react-native';
-import { useLocalSearchParams } from "expo-router";
-import { Event } from "~/types";
-import { getEvent } from "~/utils/event";
-import { useEffect, useState } from "react";
+import {
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+    Image,
+    ActivityIndicator,
+    TouchableOpacity,
+    Linking,
+    Dimensions
+} from 'react-native';
+import {useLocalSearchParams, useRouter} from "expo-router";
+import {Event, ExternalLinks} from "~/types";
+import {getEvent} from "~/utils/event";
+import {useEffect, useState} from "react";
 import ImageZoom from 'react-native-image-pan-zoom';
 
 import {SocialButton} from "~/components/socialButton";
 import {VenueButton} from "~/components/venueButton";
 
 export default function Id() {
-    const { id } = useLocalSearchParams();
+    const {id} = useLocalSearchParams();
     const [data, setData] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const router = useRouter()
 
     useEffect(() => {
         async function fetchEvent() {
@@ -28,13 +40,14 @@ export default function Id() {
                 }
             }
         }
+
         fetchEvent();
     }, [id]);
 
     if (loading) {
         return (
             <View style={styles.centered}>
-                <ActivityIndicator size="large" color="#1e90ff" />
+                <ActivityIndicator size="large" color="#1e90ff"/>
                 <Text style={styles.loadingText}>Loading event...</Text>
             </View>
         );
@@ -61,7 +74,7 @@ export default function Id() {
     const venue = data._embedded?.venues?.[0];
     const venueUrl = venue?.url;
     const artist = data._embedded?.attractions?.[0];
-    const artistLinks:Array = artist?.externalLinks;
+    const artistLinks: ExternalLinks | undefined = artist?.externalLinks;
     const sales = data.sales;
     const seatmap = data.seatmap?.staticUrl;
     const genre = artist?.classifications?.[0]?.subGenre?.name;
@@ -71,11 +84,12 @@ export default function Id() {
 
     const allowedPlatforms = ['youtube', 'twitter', 'instagram', 'facebook', 'homepage'];
 
+
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll}>
                 <Text style={styles.title}>{eventName}</Text>
-                {eventImage && <Image source={{ uri: eventImage }} style={styles.mainImage} />}
+                {eventImage && <Image source={{uri: eventImage}} style={styles.mainImage}/>}
                 <Text style={styles.status}>{status?.toUpperCase()}</Text>
 
                 <Text style={styles.section}>Date & Time</Text>
@@ -83,74 +97,88 @@ export default function Id() {
 
                 <Text style={styles.section}>Venue</Text>
                 <Text style={[styles.text, styles.bold]}>{venue?.name}</Text>
-                {venueUrl && <VenueButton url={venueUrl} />}
+                {venueUrl && <VenueButton url={venueUrl}/>}
                 <Text style={styles.text}>{venue?.address?.line1}</Text>
                 <Text style={styles.text}>{venue?.city?.name}, {venue?.state?.name}, {venue?.country?.name}</Text>
-                {venueImage && <Image source={{ uri: venueImage }} style={styles.venueImage} />}
+                {venueImage && <Image source={{uri: venueImage}} style={styles.venueImage}/>}
 
                 <Text style={styles.section}>Artist</Text>
                 <Text style={[styles.text, styles.bold]}>{artist?.name}</Text>
-                {artistImage && <Image source={{ uri: artistImage }} style={styles.artistImage} />}
+                {artistImage && <Image source={{uri: artistImage}} style={styles.artistImage}/>}
                 {genre && <Text style={styles.text}>Genre: {genre}</Text>}
                 {/* DYNAMIC & BEAUTIFUL SOCIAL LINKS */}
                 {artistLinks && (
                     <View style={styles.socialLinksContainer}>
                         {allowedPlatforms.map(platform => (
                             // Check if the link for this platform exists in the API data
+                            // @ts-ignore
                             artistLinks[platform] && artistLinks[platform][0]?.url && (
                                 <SocialButton
                                     key={platform}
                                     platform={platform}
+                                    // @ts-ignore
                                     url={artistLinks[platform][0].url}
                                 />
                             )
                         ))}
                     </View>
-                )}
+                )
+                }
 
-                {eventInfo && (
-                    <>
-                        <Text style={styles.section}>Info</Text>
-                        <Text style={styles.text}>{eventInfo}</Text>
-                    </>
-                )}
-                {eventNote && (
-                    <>
-                        <Text style={styles.section}>Note</Text>
-                        <Text style={styles.text}>{eventNote}</Text>
-                    </>
-                )}
+                {
+                    eventInfo && (
+                        <>
+                            <Text style={styles.section}>Info</Text>
+                            <Text style={styles.text}>{eventInfo}</Text>
+                        </>
+                    )
+                }
+                {
+                    eventNote && (
+                        <>
+                            <Text style={styles.section}>Note</Text>
+                            <Text style={styles.text}>{eventNote}</Text>
+                        </>
+                    )
+                }
 
                 <Text style={styles.section}>Tickets</Text>
                 <TouchableOpacity onPress={() => Linking.openURL(eventUrl)}>
                     <Text style={styles.link}>Buy Tickets on Ticketmaster</Text>
                 </TouchableOpacity>
-                {sales?.public?.startDateTime && <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>}
+                {
+                    sales?.public?.startDateTime &&
+                    <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>
+                }
 
-                {seatmap && (
-                    <>
-                        <Text style={styles.section}>Seat Map</Text>
-                        <View style={styles.seatmapContainer}>
-                            <ImageZoom
-                                cropWidth={deviceWidth - 40}
-                                cropHeight={240}
-                                imageWidth={deviceWidth - 40}
-                                imageHeight={240}
-                            >
-                                <Image
-                                    source={{ uri: seatmap }}
-                                    style={{ width: '100%', height: '100%' }}
-                                    resizeMode="contain"
-                                />
-                            </ImageZoom>
-                        </View>
-                    </>
-                )}
+                {
+                    seatmap && (
+                        <>
+                            <Text style={styles.section}>Seat Map</Text>
+                            <View style={styles.seatmapContainer}>
+                                {/* @ts-ignore*/}
+                                <ImageZoom
+                                    cropWidth={deviceWidth - 40}
+                                    cropHeight={240}
+                                    imageWidth={deviceWidth - 40}
+                                    imageHeight={240}
+                                >
+                                    <Image
+                                        source={{uri: seatmap}}
+                                        style={{width: '100%', height: '100%'}}
+                                        resizeMode="contain"
+                                    />
+                                </ImageZoom>
+                            </View>
+                        </>
+                    )
+                }
 
-                <View style={{ height: 40 }} />
+                <View style={{height: 40}}/>
             </ScrollView>
         </View>
-    );
+    )
+        ;
 }
 
 const styles = StyleSheet.create({
@@ -247,5 +275,12 @@ const styles = StyleSheet.create({
         marginTop: 10,
         alignSelf: 'center',        // Center the container horizontally
         justifyContent: 'center',   // Center its children horizontally
+    },
+    BackButton: {
+        position: "absolute",
+        zIndex: 10,
+    },
+    BackButtonText: {
+        color: "white",
     },
 });

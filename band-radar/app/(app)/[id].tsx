@@ -1,18 +1,20 @@
-import { ScrollView, StyleSheet, Text, View, Image, ActivityIndicator, TouchableOpacity, Linking } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Image, ActivityIndicator, TouchableOpacity, Linking, Dimensions } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import { Event } from "~/types";
 import { getEvent } from "~/utils/event";
 import { useEffect, useState } from "react";
 import ImageZoom from 'react-native-image-pan-zoom';
-import { Dimensions } from 'react-native';
 
+import {SocialButton} from "~/components/socialButton";
+
+// Helper component for social links to keep the main component clean
+const SocialLink = ({ platform, url }) => (
+    <TouchableOpacity onPress={() => Linking.openURL(url)}>
+        <Text style={styles.socialLink}>{platform}</Text>
+    </TouchableOpacity>
+);
 
 export default function Id() {
-
-    // Get device width for responsive zoom area
-    const deviceWidth = Dimensions.get('window').width;
-    const deviceHeight = 240; // Set a fixed height for the seat map area
-
     const { id } = useLocalSearchParams();
     const [data, setData] = useState<Event | null>(null);
     const [loading, setLoading] = useState(true);
@@ -52,7 +54,8 @@ export default function Id() {
         );
     }
 
-    const eventImage = data.images?.[1]?.url;
+    // Extract useful properties and links
+    const eventImage = data.images?.[0]?.url;
     const eventName = data.name;
     const eventInfo = data.info;
     const eventNote = data.pleaseNote;
@@ -62,47 +65,55 @@ export default function Id() {
     const timezone = data.dates?.timezone;
     const status = data.dates?.status?.code;
     const venue = data._embedded?.venues?.[0];
+    const venueUrl = venue?.url;
     const artist = data._embedded?.attractions?.[0];
+    const artistLinks:Array = artist?.externalLinks;
     const sales = data.sales;
     const seatmap = data.seatmap?.staticUrl;
     const genre = artist?.classifications?.[0]?.subGenre?.name;
     const artistImage = artist?.images?.[0]?.url;
     const venueImage = venue?.images?.[0]?.url;
+    const deviceWidth = Dimensions.get('window').width;
+
+    const allowedPlatforms = ['youtube', 'twitter', 'instagram', 'facebook', 'homepage'];
 
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scroll}>
-                {/* Header */}
                 <Text style={styles.title}>{eventName}</Text>
-                {eventImage && (
-                    <Image source={{ uri: eventImage }} style={styles.mainImage} />
-                )}
+                {eventImage && <Image source={{ uri: eventImage }} style={styles.mainImage} />}
                 <Text style={styles.status}>{status?.toUpperCase()}</Text>
 
-                {/* Date & Time */}
                 <Text style={styles.section}>Date & Time</Text>
                 <Text style={styles.text}>{date} {time ? `at ${time}` : ''} {timezone ? `(${timezone})` : ''}</Text>
 
-                {/* Venue */}
                 <Text style={styles.section}>Venue</Text>
                 <Text style={[styles.text, styles.bold]}>{venue?.name}</Text>
+                {venueUrl && <SocialLink platform="Visit Venue Website" url={venueUrl} />}
                 <Text style={styles.text}>{venue?.address?.line1}</Text>
                 <Text style={styles.text}>{venue?.city?.name}, {venue?.state?.name}, {venue?.country?.name}</Text>
-                {venueImage && (
-                    <Image source={{ uri: venueImage }} style={styles.venueImage} />
-                )}
+                {venueImage && <Image source={{ uri: venueImage }} style={styles.venueImage} />}
 
-                {/* Artist */}
                 <Text style={styles.section}>Artist</Text>
                 <Text style={[styles.text, styles.bold]}>{artist?.name}</Text>
-                {artistImage && (
-                    <Image source={{ uri: artistImage }} style={styles.artistImage} />
-                )}
-                {genre && (
-                    <Text style={styles.text}>Genre: {genre}</Text>
+                {artistImage && <Image source={{ uri: artistImage }} style={styles.artistImage} />}
+                {genre && <Text style={styles.text}>Genre: {genre}</Text>}
+                {/* DYNAMIC & BEAUTIFUL SOCIAL LINKS */}
+                {artistLinks && (
+                    <View style={styles.socialLinksContainer}>
+                        {allowedPlatforms.map(platform => (
+                            // Check if the link for this platform exists in the API data
+                            artistLinks[platform] && artistLinks[platform][0]?.url && (
+                                <SocialButton
+                                    key={platform}
+                                    platform={platform}
+                                    url={artistLinks[platform][0].url}
+                                />
+                            )
+                        ))}
+                    </View>
                 )}
 
-                {/* Event Info */}
                 {eventInfo && (
                     <>
                         <Text style={styles.section}>Info</Text>
@@ -116,54 +127,30 @@ export default function Id() {
                     </>
                 )}
 
-                {/* Tickets */}
                 <Text style={styles.section}>Tickets</Text>
                 <TouchableOpacity onPress={() => Linking.openURL(eventUrl)}>
-                    <Text style={styles.link}>Buy Tickets</Text>
+                    <Text style={styles.link}>Buy Tickets on Ticketmaster</Text>
                 </TouchableOpacity>
-                {sales?.public?.startDateTime && (
-                    <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>
-                )}
-                {sales?.public?.endDateTime && (
-                    <Text style={styles.text}>Sales End: {sales.public.endDateTime}</Text>
-                )}
+                {sales?.public?.startDateTime && <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>}
 
-                {/* Seatmap */}
                 {seatmap && (
                     <>
                         <Text style={styles.section}>Seat Map</Text>
                         <View style={styles.seatmapContainer}>
                             <ImageZoom
                                 cropWidth={deviceWidth - 40}
-                                cropHeight={deviceHeight}
+                                cropHeight={240}
                                 imageWidth={deviceWidth - 40}
-                                imageHeight={deviceHeight}
-                                minScale={1}
-                                maxScale={3}
-                                enableCenterFocus={false}
-                                style={{ borderRadius: 8, backgroundColor: '#222' }}
+                                imageHeight={240}
                             >
                                 <Image
                                     source={{ uri: seatmap }}
-                                    style={{ width: deviceWidth - 40, height: deviceHeight, borderRadius: 8 }}
+                                    style={{ width: '100%', height: '100%' }}
                                     resizeMode="contain"
                                 />
                             </ImageZoom>
                         </View>
                     </>
-                )}
-
-                {/* Accessibility */}
-                {venue?.accessibleSeatingDetail && (
-                    <>
-                        <Text style={styles.section}>Accessibility</Text>
-                        <Text style={styles.text}>{venue.accessibleSeatingDetail}</Text>
-                    </>
-                )}
-
-                {/* Age Restrictions */}
-                {data.ageRestrictions?.legalAgeEnforced && (
-                    <Text style={styles.text}>Legal Age Enforced</Text>
                 )}
 
                 <View style={{ height: 40 }} />
@@ -226,10 +213,14 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         marginVertical: 8,
     },
-    seatmap: {
+    seatmapContainer: {
         width: '100%',
-        height: 120,
+        height: 240,
         borderRadius: 8,
+        backgroundColor: '#222',
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
         marginVertical: 8,
     },
     link: {
@@ -255,14 +246,12 @@ const styles = StyleSheet.create({
         color: '#ff5252',
         fontSize: 16,
     },
-    seatmapContainer: {
-        width: '100%',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginVertical: 8,
-        backgroundColor: '#222',
-        borderRadius: 8,
-        overflow: 'hidden',
+    socialLinksContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 12,
+        marginTop: 10,
+        alignSelf: 'center',        // Center the container horizontally
+        justifyContent: 'center',   // Center its children horizontally
     },
-
 });

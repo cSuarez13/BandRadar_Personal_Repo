@@ -61,7 +61,7 @@ export default function Id() {
   }
 
   // Extract useful properties and links
-  const eventImage = data.images?.[0]?.url;
+  const eventImage = data.images?.[1]?.url ? data.images?.[1]?.url : data.images?.[0]?.url;
   const eventName = data.name;
   const eventInfo = data.info;
   const eventNote = data.pleaseNote;

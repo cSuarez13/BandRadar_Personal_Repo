@@ -52,7 +52,7 @@ export default function EventItem({ item }: { item: Event }) {
       {/* Concert image */}
       {item.images?.[0]?.url && (
         <Image
-          source={{ uri: item.images[0].url }}
+          source={{ uri: item.images[1].url ? item.images[1].url : item.images[0].url }}
           style={{
             width: '100%',
             height: 160,

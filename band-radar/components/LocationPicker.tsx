@@ -1,6 +1,8 @@
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import { useSession } from '~/context/ctx';
+import GooglePlacesTextInput, { Place } from 'react-native-google-places-textinput';
+import { Text } from 'react-native';
 
 export default function LocationPicker() {
   const { location, setLocation } = useSession();
@@ -23,12 +25,18 @@ export default function LocationPicker() {
     getCurrentLocation();
   }, [setLocation, location]);
 
-  let text = 'Waiting...';
   if (errorMsg) {
-    text = errorMsg;
-  } else if (location) {
-    text = JSON.stringify(location);
+    return <Text>{errorMsg}</Text>;
   }
-  return null;
-  // return <Text>{text}</Text>;
+
+  const handlePlaceSelect = (place: Place) => {
+    console.log('Selected place:', place);
+  };
+
+  return (
+    <GooglePlacesTextInput
+      apiKey={process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY!}
+      onPlaceSelect={handlePlaceSelect}
+    />
+  );
 }

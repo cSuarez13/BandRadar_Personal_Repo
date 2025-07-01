@@ -15,23 +15,28 @@ export default function Home() {
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [events, setEvents] = useState<TicketmasterEventResponse | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
     const fetchEvents = async () => {
       if (genres && location) {
+        const startDateTime =
+          new Date(selectedDate.setHours(0, 0, 0, 0)).toISOString().split('.')[0] + 'Z';
+        const endDateTime =
+          new Date(selectedDate.setHours(23, 59, 59, 999)).toISOString().split('.')[0] + 'Z';
+
+        console.log(startDateTime, endDateTime);
+
         try {
           setIsLoadingEvents(true);
           const events = await getEvents({
             classificationName: 'music',
-            startDateTime: '2025-06-26T00:00:00Z',
-            endDateTime: '2025-07-27T23:59:59Z',
+            startDateTime,
+            endDateTime,
             latlong: [location.lat, location.lng],
             radius: 20,
             unit: 'km',
             genreId: genres.map((genre) => genre.id),
           });
-          console.log(events);
           setEvents(events);
         } catch (error) {
           console.error(error);
@@ -94,7 +99,6 @@ export default function Home() {
                   marginTop: 20,
                   marginBottom: 20,
                 }}>
-                {/* 📍 Location Display Box */}
                 <View
                   style={{
                     backgroundColor: '#2a2a2a',
@@ -108,33 +112,17 @@ export default function Home() {
                   </Text>
                 </View>
 
-                {/* 📅 Date Picker Box */}
-                <Pressable
-                  onPress={() => setShowPicker(true)}
-                  style={{
-                    backgroundColor: '#2a2a2a',
-                    paddingVertical: 12,
-                    paddingHorizontal: 16,
-                    borderRadius: 12,
-                  }}>
-                  <Text style={{ color: 'white', fontSize: 16 }}>
-                    📅 {selectedDate.toDateString()}
-                  </Text>
-                </Pressable>
-              </View>
-
-              {/* Show native date picker modal */}
-              {showPicker && (
                 <DateTimePicker
+                  themeVariant="dark"
                   value={selectedDate}
                   mode="date"
                   display="default"
+                  design="material"
                   onChange={(event, date) => {
-                    setShowPicker(false);
                     if (date) setSelectedDate(date);
                   }}
                 />
-              )}
+              </View>
 
               {/* Recommended Concerts Header */}
               <Text style={{ fontSize: 20, fontWeight: 'bold', color: 'white', marginBottom: 16 }}>

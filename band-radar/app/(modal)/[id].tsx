@@ -184,22 +184,18 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#121212',
   },
   title: {
     fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 8,
-    textAlign: 'center',
     color: '#fff',
   },
   status: {
     fontSize: 14,
     color: '#1e90ff',
     marginBottom: 8,
-    textAlign: 'center',
   },
   section: {
     fontSize: 18,

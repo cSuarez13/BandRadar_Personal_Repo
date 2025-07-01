@@ -198,7 +198,7 @@ export default function SignIn() {
 
           <View style={styles.logoImageContainer}>
             <Image
-              source={require('~/assets/BandRadarIcon.jpg')}
+              source={require('~/assets/BandRadarIcon.png')}
               style={styles.logoImage}
               resizeMode="cover"
             />

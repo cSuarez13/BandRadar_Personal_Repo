@@ -1,6 +1,5 @@
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
-import { Text } from 'react-native';
 import { useSession } from '~/context/ctx';
 
 export default function LocationPicker() {
@@ -30,6 +29,6 @@ export default function LocationPicker() {
   } else if (location) {
     text = JSON.stringify(location);
   }
-
-  return <Text>{text}</Text>;
+  return null;
+  // return <Text>{text}</Text>;
 }

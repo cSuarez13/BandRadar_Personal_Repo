@@ -57,6 +57,11 @@ const AuthContext = createContext<{
     lng: number;
   } | null;
   setLocation: (location: { lat: number; lng: number }) => void;
+
+  toggleFavorite: (id: string) => void;
+  isLoadingFavoriteIds: boolean;
+  favoriteIds: string[] | null;
+  setFavoriteIds: (ids: string[]) => void;
 }>({
   signIn: () => null,
   signOut: () => null,
@@ -72,6 +77,11 @@ const AuthContext = createContext<{
   isLoadingLocation: false,
   location: null,
   setLocation: () => null,
+
+  toggleFavorite: () => null,
+  isLoadingFavoriteIds: false,
+  favoriteIds: [],
+  setFavoriteIds: () => null,
 });
 
 // This hook can be used to access the user info.
@@ -94,6 +104,16 @@ export function SessionProvider({ children }: PropsWithChildren) {
     lat: number;
     lng: number;
   } | null>('location');
+  const [[isLoadingFavoriteIds, favoriteIds], setFavoriteIds] =
+    useStorageState<string[]>('favoriteConcerts');
+
+  const toggleFavorite = (id: string) => {
+    if (favoriteIds && favoriteIds.includes(id)) {
+      setFavoriteIds(favoriteIds.filter((favId) => favId !== id));
+    } else {
+      setFavoriteIds(favoriteIds ? [...favoriteIds, id] : [id]);
+    }
+  };
 
   useEffect(() => {
     if (session && !genres) {
@@ -169,6 +189,10 @@ export function SessionProvider({ children }: PropsWithChildren) {
         isLoadingLocation,
         location,
         setLocation,
+        toggleFavorite,
+        isLoadingFavoriteIds,
+        favoriteIds,
+        setFavoriteIds,
       }}>
       {children}
     </AuthContext>

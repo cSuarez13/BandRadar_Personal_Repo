@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { SessionProvider, useSession } from '~/context/ctx';
 import { SplashScreenController } from '~/components/splash';
+import { StatusBar } from 'expo-status-bar';
 
 export default function Root() {
   return (
@@ -16,8 +17,10 @@ function RootNavigator() {
 
   return (
     <Stack>
+      <StatusBar style="dark" />
       <Stack.Protected guard={!!session}>
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(modal)" options={{ headerShown: false, presentation: 'modal' }} />
       </Stack.Protected>
 
       <Stack.Protected guard={!session}>

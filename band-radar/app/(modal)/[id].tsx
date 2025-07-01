@@ -15,8 +15,8 @@ import ImageZoom from 'react-native-image-pan-zoom';
 import { Event, ExternalLinks } from '~/types';
 import { getEvent } from '~/utils/event';
 
-import { SocialButton } from '~/components/socialButton';
-import { VenueButton } from '~/components/venueButton';
+import { SocialButton } from '~/components/SocialButton';
+import { VenueButton } from '~/components/VenueButton';
 
 export default function Id() {
   const { id } = useLocalSearchParams();

@@ -55,8 +55,9 @@ const AuthContext = createContext<{
   location: {
     lat: number;
     lng: number;
+    placeName: string;
   } | null;
-  setLocation: (location: { lat: number; lng: number }) => void;
+  setLocation: (location: { lat: number; lng: number; placeName: string }) => void;
 
   toggleFavorite: (id: string) => void;
   isLoadingFavoriteIds: boolean;
@@ -103,6 +104,7 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoadingLocation, location], setLocation] = useStorageState<{
     lat: number;
     lng: number;
+    placeName: string;
   } | null>('location');
   const [[isLoadingFavoriteIds, favoriteIds], setFavoriteIds] =
     useStorageState<string[]>('favoriteConcerts');

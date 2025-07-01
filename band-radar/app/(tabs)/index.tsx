@@ -108,7 +108,7 @@ export default function Home() {
                     width: 'auto',
                   }}>
                   <Text style={{ color: 'white', fontSize: 16 }}>
-                    📍 {`${location?.lat.toFixed(2)}, ${location?.lng.toFixed(2)}`}
+                    📍 {`${location?.placeName}`}
                   </Text>
                 </View>
 

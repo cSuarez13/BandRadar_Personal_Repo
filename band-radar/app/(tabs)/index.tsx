@@ -1,7 +1,7 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 
-import { ActivityIndicator, FlatList, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, Pressable, Text, View } from 'react-native';
 import LocationPicker from '~/components/LocationPicker';
 
 import EventItem from '~/components/EventItem';
@@ -12,6 +12,7 @@ import { getEvents } from '~/utils/events';
 export default function Home() {
   const { isCompilingGenres, genres, location } = useSession();
 
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [events, setEvents] = useState<TicketmasterEventResponse | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -112,16 +113,36 @@ export default function Home() {
                   </Text>
                 </View>
 
-                <DateTimePicker
-                  themeVariant="dark"
-                  value={selectedDate}
-                  mode="date"
-                  display="default"
-                  design="material"
-                  onChange={(event, date) => {
-                    if (date) setSelectedDate(date);
-                  }}
-                />
+                {Platform.OS === 'ios' ? (
+                  <DateTimePicker
+                    themeVariant="dark"
+                    value={selectedDate}
+                    mode="date"
+                    display="default"
+                    onChange={(event, date) => {
+                      if (date) setSelectedDate(date);
+                    }}
+                  />
+                ) : (
+                  <>
+                    <Pressable onPress={() => setShowDatePicker(true)}>
+                      <Text style={{ color: 'white', fontSize: 16 }}>
+                        📅 {selectedDate.toLocaleDateString()}
+                      </Text>
+                    </Pressable>
+
+                    {showDatePicker && (
+                      <DateTimePicker
+                        value={selectedDate}
+                        mode="date"
+                        onChange={(event, date) => {
+                          if (date) setSelectedDate(date);
+                          setShowDatePicker(false);
+                        }}
+                      />
+                    )}
+                  </>
+                )}
               </View>
 
               {/* Recommended Concerts Header */}

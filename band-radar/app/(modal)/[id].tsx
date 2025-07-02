@@ -2,6 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Dimensions,
   Image,
   Linking,
@@ -24,6 +25,44 @@ export default function Id() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Animation values
+  const [spinValue] = useState(new Animated.Value(0));
+  const [pulseValue] = useState(new Animated.Value(1));
+
+  useEffect(() => {
+    // Start animations
+    const spinAnimation = Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      })
+    );
+
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseValue, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseValue, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    spinAnimation.start();
+    pulseAnimation.start();
+
+    return () => {
+      spinAnimation.stop();
+      pulseAnimation.stop();
+    };
+  }, [spinValue, pulseValue]);
+
   useEffect(() => {
     async function fetchEvent() {
       if (typeof id === 'string') {
@@ -43,11 +82,44 @@ export default function Id() {
     fetchEvent();
   }, [id]);
 
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#1e90ff" />
-        <Text style={styles.loadingText}>Loading event...</Text>
+      <View style={styles.loadingContainer}>
+        <View style={styles.loadingContent}>
+          {/* Spinning music note icon */}
+          <Animated.View
+            style={[
+              styles.iconContainer,
+              {
+                transform: [{ rotate: spin }],
+              },
+            ]}>
+            <Text style={styles.musicIcon}>🎵</Text>
+          </Animated.View>
+
+          {/* Pulsing loading text */}
+          <Animated.View style={{ transform: [{ scale: pulseValue }] }}>
+            <Text style={styles.loadingTitle}>Loading Event</Text>
+          </Animated.View>
+
+          {/* Activity indicator */}
+          <ActivityIndicator size="large" color="#00ff41" style={styles.spinner} />
+
+          {/* Loading message */}
+          <Text style={styles.loadingText}>Getting event details...</Text>
+
+          {/* Progress dots */}
+          <View style={styles.dotsContainer}>
+            <Animated.Text style={[styles.dot, { opacity: pulseValue }]}>●</Animated.Text>
+            <Animated.Text style={[styles.dot, { opacity: pulseValue }]}>●</Animated.Text>
+            <Animated.Text style={[styles.dot, { opacity: pulseValue }]}>●</Animated.Text>
+          </View>
+        </View>
       </View>
     );
   }
@@ -185,6 +257,55 @@ const styles = StyleSheet.create({
   centered: {
     flex: 1,
     backgroundColor: '#121212',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: '#121212',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingContent: {
+    alignItems: 'center',
+    padding: 32,
+  },
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(0, 255, 65, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: 'rgba(0, 255, 65, 0.3)',
+  },
+  musicIcon: {
+    fontSize: 32,
+  },
+  loadingTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#00ff41',
+    marginBottom: 16,
+  },
+  spinner: {
+    marginBottom: 16,
+  },
+  loadingText: {
+    color: '#e0e0e0',
+    fontSize: 16,
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  dot: {
+    color: '#00ff41',
+    fontSize: 20,
   },
   title: {
     fontSize: 26,
@@ -248,10 +369,6 @@ const styles = StyleSheet.create({
     color: '#e0e0e0',
     fontSize: 15,
   },
-  loadingText: {
-    color: '#e0e0e0',
-    marginTop: 10,
-  },
   errorText: {
     color: '#ff5252',
     fontSize: 16,
@@ -261,8 +378,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 12,
     marginTop: 10,
-    alignSelf: 'center', // Center the container horizontally
-    justifyContent: 'center', // Center its children horizontally
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
   BackButton: {
     position: 'absolute',

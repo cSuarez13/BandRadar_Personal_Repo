@@ -187,10 +187,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   inputWrapper: {
-    width: 230,
-    height: 48,
     position: 'relative',
-    flexShrink: 1,
+    flex: 1,
   },
   currentLocationButton: {
     padding: 8,

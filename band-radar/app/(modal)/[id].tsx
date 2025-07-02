@@ -3,6 +3,7 @@ import { eventDetailStyles as styles } from './eventDetailStyles';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Animated,
   Dimensions,
   Image,
   Linking,
@@ -25,6 +26,46 @@ export default function Id() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Animation values
+  const [spinValue] = useState(new Animated.Value(0));
+  const [pulseValue] = useState(new Animated.Value(1));
+
+  useEffect(() => {
+    // Start animations
+    const spinAnimation = Animated.loop(
+      Animated.timing(spinValue, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      })
+    );
+
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseValue, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseValue, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+
+    if (loading) {
+      spinAnimation.start();
+      pulseAnimation.start();
+    }
+
+    return () => {
+      spinAnimation.stop();
+      pulseAnimation.stop();
+    };
+  }, [loading, spinValue, pulseValue]);
+
   useEffect(() => {
     async function fetchEvent() {
       if (typeof id === 'string') {
@@ -44,11 +85,76 @@ export default function Id() {
     fetchEvent();
   }, [id]);
 
+  const spin = spinValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#1e90ff" />
-        <Text style={styles.loadingText}>Loading event...</Text>
+      <View style={[styles.centered, { backgroundColor: '#121212' }]}>
+        <View
+          style={{
+            alignItems: 'center',
+            padding: 32,
+          }}>
+          {/* Spinning music note icon */}
+          <Animated.View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 40,
+              backgroundColor: 'rgba(0, 255, 65, 0.1)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 24,
+              borderWidth: 2,
+              borderColor: 'rgba(0, 255, 65, 0.3)',
+              transform: [{ rotate: spin }],
+            }}>
+            <Text style={{ fontSize: 32 }}>🎵</Text>
+          </Animated.View>
+
+          {/* Pulsing loading text */}
+          <Animated.View style={{ transform: [{ scale: pulseValue }] }}>
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: 'bold',
+                color: '#00ff41',
+                marginBottom: 16,
+              }}>
+              Loading Event
+            </Text>
+          </Animated.View>
+
+          {/* Activity indicator */}
+          <ActivityIndicator size="large" color="#00ff41" style={{ marginBottom: 16 }} />
+
+          {/* Loading message */}
+          <Text
+            style={{
+              color: '#e0e0e0',
+              fontSize: 16,
+              marginBottom: 24,
+              textAlign: 'center',
+            }}>
+            Getting event details...
+          </Text>
+
+          {/* Progress dots */}
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Animated.Text style={[{ color: '#00ff41', fontSize: 20 }, { opacity: pulseValue }]}>
+              ●
+            </Animated.Text>
+            <Animated.Text style={[{ color: '#00ff41', fontSize: 20 }, { opacity: pulseValue }]}>
+              ●
+            </Animated.Text>
+            <Animated.Text style={[{ color: '#00ff41', fontSize: 20 }, { opacity: pulseValue }]}>
+              ●
+            </Animated.Text>
+          </View>
+        </View>
       </View>
     );
   }
@@ -148,7 +254,7 @@ export default function Id() {
         <View style={styles.card}>
           <Text style={styles.section}>Tickets</Text>
           <TouchableOpacity style={styles.ticketButton} onPress={() => Linking.openURL(eventUrl)}>
-            <Text style={styles.text}>Buy Tickets on Ticketmaster</Text>
+            <Text style={styles.ticketText}>Buy Tickets on Ticketmaster</Text>
           </TouchableOpacity>
           {sales?.public?.startDateTime && (
             <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>

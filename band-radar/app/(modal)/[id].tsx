@@ -147,11 +147,9 @@ export default function Id() {
 
         <View style={styles.card}>
           <Text style={styles.section}>Tickets</Text>
-          <TouchableOpacity
-  style={styles.ticketButton}
-  onPress={() => Linking.openURL(eventUrl)}>
-  <Text style={styles.ticketButtonText}>Buy Tickets on Ticketmaster</Text>
-</TouchableOpacity>
+          <TouchableOpacity style={styles.ticketButton} onPress={() => Linking.openURL(eventUrl)}>
+            <Text style={styles.text}>Buy Tickets on Ticketmaster</Text>
+          </TouchableOpacity>
           {sales?.public?.startDateTime && (
             <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>
           )}

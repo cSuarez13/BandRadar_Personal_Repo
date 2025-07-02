@@ -55,14 +55,16 @@ export default function Id() {
       ])
     );
 
-    spinAnimation.start();
-    pulseAnimation.start();
+    if (loading) {
+      spinAnimation.start();
+      pulseAnimation.start();
+    }
 
     return () => {
       spinAnimation.stop();
       pulseAnimation.stop();
     };
-  }, [spinValue, pulseValue]);
+  }, [loading, spinValue, pulseValue]);
 
   useEffect(() => {
     async function fetchEvent() {
@@ -90,35 +92,67 @@ export default function Id() {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <View style={styles.loadingContent}>
+      <View style={[styles.centered, { backgroundColor: '#121212' }]}>
+        <View
+          style={{
+            alignItems: 'center',
+            padding: 32,
+          }}>
           {/* Spinning music note icon */}
           <Animated.View
-            style={[
-              styles.iconContainer,
-              {
-                transform: [{ rotate: spin }],
-              },
-            ]}>
-            <Text style={styles.musicIcon}>🎵</Text>
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 40,
+              backgroundColor: 'rgba(0, 255, 65, 0.1)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 24,
+              borderWidth: 2,
+              borderColor: 'rgba(0, 255, 65, 0.3)',
+              transform: [{ rotate: spin }],
+            }}>
+            <Text style={{ fontSize: 32 }}>🎵</Text>
           </Animated.View>
 
           {/* Pulsing loading text */}
           <Animated.View style={{ transform: [{ scale: pulseValue }] }}>
-            <Text style={styles.loadingTitle}>Loading Event</Text>
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: 'bold',
+                color: '#00ff41',
+                marginBottom: 16,
+              }}>
+              Loading Event
+            </Text>
           </Animated.View>
 
           {/* Activity indicator */}
-          <ActivityIndicator size="large" color="#00ff41" style={styles.spinner} />
+          <ActivityIndicator size="large" color="#00ff41" style={{ marginBottom: 16 }} />
 
           {/* Loading message */}
-          <Text style={styles.loadingText}>Getting event details...</Text>
+          <Text
+            style={{
+              color: '#e0e0e0',
+              fontSize: 16,
+              marginBottom: 24,
+              textAlign: 'center',
+            }}>
+            Getting event details...
+          </Text>
 
           {/* Progress dots */}
-          <View style={styles.dotsContainer}>
-            <Animated.Text style={[styles.dot, { opacity: pulseValue }]}>●</Animated.Text>
-            <Animated.Text style={[styles.dot, { opacity: pulseValue }]}>●</Animated.Text>
-            <Animated.Text style={[styles.dot, { opacity: pulseValue }]}>●</Animated.Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Animated.Text style={[{ color: '#00ff41', fontSize: 20 }, { opacity: pulseValue }]}>
+              ●
+            </Animated.Text>
+            <Animated.Text style={[{ color: '#00ff41', fontSize: 20 }, { opacity: pulseValue }]}>
+              ●
+            </Animated.Text>
+            <Animated.Text style={[{ color: '#00ff41', fontSize: 20 }, { opacity: pulseValue }]}>
+              ●
+            </Animated.Text>
           </View>
         </View>
       </View>
@@ -220,7 +254,7 @@ export default function Id() {
         <View style={styles.card}>
           <Text style={styles.section}>Tickets</Text>
           <TouchableOpacity style={styles.ticketButton} onPress={() => Linking.openURL(eventUrl)}>
-            <Text style={styles.ticketButtonText}>Buy Tickets on Ticketmaster</Text>
+            <Text style={styles.ticketText}>Buy Tickets on Ticketmaster</Text>
           </TouchableOpacity>
           {sales?.public?.startDateTime && (
             <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>
@@ -252,148 +286,3 @@ export default function Id() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-  },
-  scroll: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  centered: {
-    flex: 1,
-    backgroundColor: '#121212',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: '#121212',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingContent: {
-    alignItems: 'center',
-    padding: 32,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(0, 255, 65, 0.1)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: 'rgba(0, 255, 65, 0.3)',
-  },
-  musicIcon: {
-    fontSize: 32,
-  },
-  loadingTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#00ff41',
-    marginBottom: 16,
-  },
-  spinner: {
-    marginBottom: 16,
-  },
-  loadingText: {
-    color: '#e0e0e0',
-    fontSize: 16,
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  dotsContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  dot: {
-    color: '#00ff41',
-    fontSize: 20,
-  },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#fff',
-  },
-  status: {
-    fontSize: 14,
-    color: '#1e90ff',
-    marginBottom: 8,
-  },
-  section: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 18,
-    marginBottom: 4,
-    alignSelf: 'flex-start',
-    color: '#fff',
-  },
-  mainImage: {
-    width: '100%',
-    height: 180,
-    borderRadius: 12,
-    marginBottom: 10,
-  },
-  venueImage: {
-    width: '100%',
-    height: 100,
-    borderRadius: 8,
-    marginVertical: 8,
-  },
-  artistImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginVertical: 8,
-  },
-  seatmapContainer: {
-    width: '100%',
-    height: 240,
-    borderRadius: 8,
-    backgroundColor: '#222',
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 8,
-  },
-  link: {
-    color: '#1e90ff',
-    fontWeight: 'bold',
-    textDecorationLine: 'underline',
-    marginBottom: 8,
-    fontSize: 16,
-  },
-  bold: {
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  text: {
-    color: '#e0e0e0',
-    fontSize: 15,
-  },
-  errorText: {
-    color: '#ff5252',
-    fontSize: 16,
-  },
-  socialLinksContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginTop: 10,
-    alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  BackButton: {
-    position: 'absolute',
-    zIndex: 10,
-  },
-  BackButtonText: {
-    color: 'white',
-  },
-});

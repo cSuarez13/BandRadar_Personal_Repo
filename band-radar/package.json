@@ -38,6 +38,8 @@
     "react-native-google-places-autocomplete": "^2.5.7",
     "react-native-google-places-textinput": "^0.7.4",
     "react-native-image-pan-zoom": "^2.1.12",
+    "react-native-maps": "1.20.0",
+    "react-native-modalize": "^2.1.1",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",

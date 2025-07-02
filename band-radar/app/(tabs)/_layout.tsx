@@ -66,6 +66,27 @@ export default function AppLayout() {
           ),
         }}
       />
+        <Tabs.Screen
+            name="maps"
+            options={{
+                title: 'Maps',
+                tabBarIcon: ({ color }) => <FontAwesome size={28} name="map" color={color} />,
+                headerLeft: () => (
+                    <View style={{ ...styles.circle, marginLeft: 10 }}>
+                        <Image
+                            source={imageUrl}
+                            style={styles.icon}
+                            resizeMode="contain" // Ensures the whole image fits inside
+                        />
+                    </View>
+                ),
+                headerRight: () => (
+                    <Pressable onPress={() => signOut()} style={{ marginRight: 10 }}>
+                        <Ionicons name="log-out-outline" size={24} color="black" />
+                    </Pressable>
+                ),
+            }}
+        />
     </Tabs>
   );
 }

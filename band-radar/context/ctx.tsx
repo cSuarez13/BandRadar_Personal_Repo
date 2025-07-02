@@ -2,6 +2,7 @@ import { use, createContext, type PropsWithChildren, useEffect, useState } from 
 import { useStorageState } from './useStorageState';
 import { extractUserPlaylistGenres, GenreCount } from '~/utils/playlists';
 import { genreMap } from '~/constants';
+import { refreshToken } from '~/utils/refresh';
 
 export type Session = {
   token: {
@@ -121,10 +122,13 @@ export function SessionProvider({ children }: PropsWithChildren) {
     if (session && !genres) {
       async function getGenres() {
         if (!session) return;
+
+        const refreshedTokens = await refreshToken(session.token.refresh_token);
+
         try {
           setIsCompilingGenres(true);
 
-          const genres = await extractUserPlaylistGenres(session.token.access_token);
+          const genres = await extractUserPlaylistGenres(refreshedTokens.access_token);
 
           // Mapping Spotify genres to Ticketmaster genres, and removing duplicates
           const mappedGenres = genres

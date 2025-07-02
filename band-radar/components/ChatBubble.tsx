@@ -221,14 +221,14 @@ const styles = StyleSheet.create({
     color: 'black',
     borderTopRightRadius: 8,
     borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
   },
   sentMessage: {
     backgroundColor: '#00ff41', // green-900 equivalent
     color: 'black',
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
+    borderBottomLeftRadius: 8,
   },
   aiMessage: {
     borderTopWidth: 1,

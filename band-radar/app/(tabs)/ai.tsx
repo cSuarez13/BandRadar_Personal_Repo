@@ -1,7 +1,16 @@
 import { generateAPIUrl } from '~/utils/utils';
 import { useChat } from '@ai-sdk/react';
 import { fetch as expoFetch } from 'expo/fetch';
-import { View, TextInput, ScrollView, Text, SafeAreaView } from 'react-native';
+import {
+  View,
+  TextInput,
+  ScrollView,
+  Text,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+} from 'react-native';
 import {
   ChatBubble,
   ChatBubbleAvatar,
@@ -20,56 +29,78 @@ export default function Ai() {
   if (error) return <Text>{error.message}</Text>;
 
   return (
-    <SafeAreaView style={{ height: '100%', backgroundColor: '#111111' }}>
-      <View
-        style={{
-          height: '95%',
-          display: 'flex',
-          flexDirection: 'column',
-          paddingHorizontal: 8,
-        }}>
-        <ScrollView style={{ flex: 1 }}>
-          {messages.map((m) => (
-            <ChatBubble
-              key={m.id}
-              variant={m.role === 'user' ? 'sent' : 'received'}
-              style={{ marginVertical: 8 }}>
-              <ChatBubbleAvatar
-                fallback={m.role === 'user' ? 'U' : 'AI'}
-                style={{ width: 24, height: 24 }}
-              />
-              <ChatBubbleMessage variant={m.role === 'user' ? 'sent' : 'received'}>
-                <Text style={{ color: 'black' }}>
-                  {m.toolInvocations ? JSON.stringify(m.toolInvocations, null, 2) : m.content}
-                </Text>
-                <ChatBubbleTimestamp timestamp={new Date().toLocaleTimeString()} />
-              </ChatBubbleMessage>
-            </ChatBubble>
-          ))}
-        </ScrollView>
+    <View style={{ flex: 1, backgroundColor: '#111111' }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}>
+          <View style={{ flex: 1, paddingHorizontal: 8 }}>
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 20 }}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled">
+              {messages.map((m) => (
+                <ChatBubble
+                  key={m.id}
+                  variant={m.role === 'user' ? 'sent' : 'received'}
+                  style={{ marginVertical: 8 }}>
+                  <ChatBubbleAvatar
+                    fallback={m.role === 'user' ? 'U' : 'AI'}
+                    style={{ width: 24, height: 24 }}
+                  />
+                  <ChatBubbleMessage variant={m.role === 'user' ? 'sent' : 'received'}>
+                    <Text style={{ color: 'black' }}>
+                      {m.toolInvocations ? JSON.stringify(m.toolInvocations, null, 2) : m.content}
+                    </Text>
+                    <ChatBubbleTimestamp timestamp={new Date().toLocaleTimeString()} />
+                  </ChatBubbleMessage>
+                </ChatBubble>
+              ))}
+            </ScrollView>
 
-        <View style={{ marginTop: 8 }}>
-          <TextInput
-            style={{ backgroundColor: 'white', padding: 8 }}
-            placeholder="Say something..."
-            value={input}
-            onChange={(e) =>
-              handleInputChange({
-                ...e,
-                target: {
-                  ...e.target,
-                  value: e.nativeEvent.text,
-                },
-              } as unknown as React.ChangeEvent<HTMLInputElement>)
-            }
-            onSubmitEditing={(e) => {
-              handleSubmit(e);
-              e.preventDefault();
-            }}
-            autoFocus={true}
-          />
-        </View>
-      </View>
-    </SafeAreaView>
+            <View
+              style={{
+                borderTopWidth: 1,
+                borderColor: '#8E8E8F',
+                marginHorizontal: -8,
+                paddingHorizontal: 8,
+                paddingTop: 8,
+                paddingBottom: 8,
+              }}>
+              <TextInput
+                style={{
+                  backgroundColor: 'white',
+                  padding: 12,
+                  borderRadius: 8,
+                  color: 'black',
+                  borderWidth: 1,
+                  fontSize: 16,
+                }}
+                placeholder="Say something..."
+                placeholderTextColor="#666"
+                value={input}
+                onChange={(e) =>
+                  handleInputChange({
+                    ...e,
+                    target: {
+                      ...e.target,
+                      value: e.nativeEvent.text,
+                    },
+                  } as unknown as React.ChangeEvent<HTMLInputElement>)
+                }
+                onSubmitEditing={(e) => {
+                  handleSubmit(e);
+                  Keyboard.dismiss();
+                }}
+                returnKeyType="send"
+                blurOnSubmit={false}
+              />
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 }

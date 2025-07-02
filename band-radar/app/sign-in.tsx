@@ -1,18 +1,19 @@
-import { useEffect, useRef } from 'react';
-import * as WebBrowser from 'expo-web-browser';
+import { Ionicons } from '@expo/vector-icons';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+import { useEffect, useRef } from 'react';
 import {
-  View,
-  Text,
   Animated,
-  Pressable,
-  Image,
-  StyleSheet,
-  Dimensions,
   Button,
+  Dimensions,
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
 import { useSession } from '~/context/ctx';
-import { Ionicons } from '@expo/vector-icons';
+import { refreshToken } from '~/utils/refresh';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -125,20 +126,7 @@ export default function SignIn() {
   }, []);
 
   async function signInWithRefreshToken() {
-    const res = await fetch('/api/auth/refresh', {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-      body: JSON.stringify({ refresh_token: process.env.EXPO_PUBLIC_SPOTIFY_REFRESH_TOKEN }),
-    });
-
-    const data = await res.json();
-
-    const newData = {
-      ...data,
-      refresh_token: process.env.EXPO_PUBLIC_SPOTIFY_REFRESH_TOKEN,
-    };
+    const newData = await refreshToken(process.env.EXPO_PUBLIC_SPOTIFY_REFRESH_TOKEN!);
 
     signIn(newData);
   }

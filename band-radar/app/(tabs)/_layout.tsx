@@ -28,7 +28,7 @@ export default function AppLayout() {
         options={{
           title: 'Recommended',
 
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={18} name="home" color={color} />,
           headerLeft: () => (
             <View style={{ ...styles.circle, marginLeft: 10 }}>
               <Image
@@ -49,7 +49,28 @@ export default function AppLayout() {
         name="favorites"
         options={{
           title: 'Favorites',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="star" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={18} name="star" color={color} />,
+          headerLeft: () => (
+            <View style={{ ...styles.circle, marginLeft: 10 }}>
+              <Image
+                source={imageUrl}
+                style={styles.icon}
+                resizeMode="contain" // Ensures the whole image fits inside
+              />
+            </View>
+          ),
+          headerRight: () => (
+            <Pressable onPress={() => signOut()} style={{ marginRight: 10 }}>
+              <Ionicons name="log-out-outline" size={24} color="black" />
+            </Pressable>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ai"
+        options={{
+          title: 'RadarBot',
+          tabBarIcon: ({ color }) => <FontAwesome size={18} name="comment" color={color} />,
           headerLeft: () => (
             <View style={{ ...styles.circle, marginLeft: 10 }}>
               <Image

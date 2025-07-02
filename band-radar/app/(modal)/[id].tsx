@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
+import { eventDetailStyles as styles } from './eventDetailStyles';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -7,11 +8,11 @@ import {
   Image,
   Linking,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import ImageZoom from 'react-native-image-pan-zoom';
 import { Event, ExternalLinks } from '~/types';
 import { getEvent } from '~/utils/event';
@@ -132,7 +133,6 @@ export default function Id() {
     );
   }
 
-  // Extract useful properties and links
   const eventImage = data.images?.[1]?.url ? data.images?.[1]?.url : data.images?.[0]?.url;
   const eventName = data.name;
   const eventInfo = data.info;
@@ -158,69 +158,77 @@ export default function Id() {
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>{eventName}</Text>
-        {eventImage && <Image source={{ uri: eventImage }} style={styles.mainImage} />}
-        <Text style={styles.status}>{status?.toUpperCase()}</Text>
+        <View style={styles.card}>
+          <Text style={styles.title}>{eventName}</Text>
+          {eventImage && <Image source={{ uri: eventImage }} style={styles.mainImage} />}
+          <Text style={styles.status}>{status?.toUpperCase()}</Text>
+        </View>
 
-        <Text style={styles.section}>Date & Time</Text>
-        <Text style={styles.text}>
-          {date} {time ? `at ${time}` : ''} {timezone ? `(${timezone})` : ''}
-        </Text>
+        <View style={styles.card}>
+          <Text style={styles.section}>Date & Time</Text>
+          <Text style={styles.text}>
+            {date} {time ? `at ${time}` : ''} {timezone ? `(${timezone})` : ''}
+          </Text>
+        </View>
 
-        <Text style={styles.section}>Venue</Text>
-        <Text style={[styles.text, styles.bold]}>{venue?.name}</Text>
-        {venueUrl && <VenueButton url={venueUrl} />}
-        <Text style={styles.text}>{venue?.address?.line1}</Text>
-        <Text style={styles.text}>
-          {venue?.city?.name}, {venue?.state?.name}, {venue?.country?.name}
-        </Text>
-        {venueImage && <Image source={{ uri: venueImage }} style={styles.venueImage} />}
+        <View style={styles.card}>
+          <Text style={styles.section}>Venue</Text>
+          <Text style={[styles.text, styles.bold]}>{venue?.name}</Text>
+          {venueUrl && <VenueButton url={venueUrl} />}
+          <Text style={styles.text}>{venue?.address?.line1}</Text>
+          <Text style={styles.text}>
+            {venue?.city?.name}, {venue?.state?.name}, {venue?.country?.name}
+          </Text>
+          {venueImage && <Image source={{ uri: venueImage }} style={styles.venueImage} />}
+        </View>
 
-        <Text style={styles.section}>Artist</Text>
-        <Text style={[styles.text, styles.bold]}>{artist?.name}</Text>
-        {artistImage && <Image source={{ uri: artistImage }} style={styles.artistImage} />}
-        {genre && <Text style={styles.text}>Genre: {genre}</Text>}
-        {/* DYNAMIC & BEAUTIFUL SOCIAL LINKS */}
-        {artistLinks && (
-          <View style={styles.socialLinksContainer}>
-            {allowedPlatforms.map(
-              (platform) =>
-                // Check if the link for this platform exists in the API data
-                artistLinks?.[platform as keyof ExternalLinks] &&
-                artistLinks?.[platform as keyof ExternalLinks]?.[0]?.url && (
-                  <SocialButton
-                    key={platform}
-                    platform={platform}
-                    url={artistLinks?.[platform as keyof ExternalLinks]?.[0]?.url || '#'}
-                  />
-                )
-            )}
+        <View style={styles.card}>
+          <Text style={styles.section}>Artist</Text>
+          <Text style={[styles.text, styles.bold]}>{artist?.name}</Text>
+          {artistImage && <Image source={{ uri: artistImage }} style={styles.artistImage} />}
+          {genre && <Text style={styles.text}>Genre: {genre}</Text>}
+          {artistLinks && (
+            <View style={styles.socialLinksContainer}>
+              {allowedPlatforms.map(
+                (platform) =>
+                  artistLinks?.[platform as keyof ExternalLinks]?.[0]?.url && (
+                    <SocialButton
+                      key={platform}
+                      platform={platform}
+                      url={artistLinks?.[platform as keyof ExternalLinks]?.[0]?.url || '#'}
+                    />
+                  )
+              )}
+            </View>
+          )}
+        </View>
+
+        {eventInfo && (
+          <View style={styles.card}>
+            <Text style={styles.section}>Info</Text>
+            <Text style={styles.text}>{eventInfo}</Text>
           </View>
         )}
 
-        {eventInfo && (
-          <>
-            <Text style={styles.section}>Info</Text>
-            <Text style={styles.text}>{eventInfo}</Text>
-          </>
-        )}
         {eventNote && (
-          <>
+          <View style={styles.card}>
             <Text style={styles.section}>Note</Text>
             <Text style={styles.text}>{eventNote}</Text>
-          </>
+          </View>
         )}
 
-        <Text style={styles.section}>Tickets</Text>
-        <TouchableOpacity onPress={() => Linking.openURL(eventUrl)}>
-          <Text style={styles.link}>Buy Tickets on Ticketmaster</Text>
-        </TouchableOpacity>
-        {sales?.public?.startDateTime && (
-          <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>
-        )}
+        <View style={styles.card}>
+          <Text style={styles.section}>Tickets</Text>
+          <TouchableOpacity style={styles.ticketButton} onPress={() => Linking.openURL(eventUrl)}>
+            <Text style={styles.ticketButtonText}>Buy Tickets on Ticketmaster</Text>
+          </TouchableOpacity>
+          {sales?.public?.startDateTime && (
+            <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>
+          )}
+        </View>
 
         {seatmap && (
-          <>
+          <View style={styles.card}>
             <Text style={styles.section}>Seat Map</Text>
             <View style={styles.seatmapContainer}>
               {/* @ts-ignore*/}
@@ -236,7 +244,7 @@ export default function Id() {
                 />
               </ImageZoom>
             </View>
-          </>
+          </View>
         )}
 
         <View style={{ height: 40 }} />

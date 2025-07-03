@@ -12,6 +12,9 @@ export default function EventItem({
   size?: 'small' | 'large';
 }) {
   const { toggleFavorite, favoriteIds } = useSession();
+
+  const image = item.images.find((image) => image.width < 1000) || item.images?.[0];
+
   return (
     <TouchableOpacity
       onPress={() => {
@@ -58,7 +61,7 @@ export default function EventItem({
       {/* Concert image */}
       {item.images?.[0]?.url && size === 'large' && (
         <Image
-          source={{ uri: item.images[1].url ? item.images[1].url : item.images[0].url }}
+          source={{ uri: image?.url }}
           style={{
             width: '100%',
             height: 160,

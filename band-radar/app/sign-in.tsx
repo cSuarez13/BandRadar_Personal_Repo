@@ -225,14 +225,14 @@ export default function SignIn() {
         <View style={styles.buttonGlow} />
       </Animated.View>
 
-      <Animated.View style={[styles.refreshButtonContainer, { opacity: contentOpacity }]}>
+      {/* <Animated.View style={[styles.refreshButtonContainer, { opacity: contentOpacity }]}>
         <Button
           title="Sign in with refresh token"
           onPress={async () => {
             signInWithRefreshToken();
           }}
         />
-      </Animated.View>
+      </Animated.View> */}
 
       {/* Bottom tagline */}
       <Animated.View style={[styles.taglineContainer, { opacity: contentOpacity }]}>

@@ -1,3 +1,4 @@
+// app(tabs)/index.tsx
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useEffect, useState } from 'react';
 import {
@@ -38,85 +39,82 @@ const NoResultsMessage = () => (
 );
 
 export default function Home() {
-  const { isCompilingGenres, genres, location, startDate, endDate, setStartDate, setEndDate } =
-    useSession();
+  const {
+    isCompilingGenres,
+    genres,
+    location,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate,
+    isLoadingDateRange,
+  } = useSession();
 
   const [showDatePicker, setShowDatePicker] = useState<'start' | 'end' | null>(null);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [events, setEvents] = useState<TicketmasterEventResponse | null>(null);
 
-  // Parse stored date strings or apply defaults on first load
-  useEffect(() => {
-    let parsedStart = startDate;
-    let parsedEnd = endDate;
-
-    if (typeof startDate === 'string') {
-      const parsed = new Date(startDate);
-      if (!isNaN(parsed.getTime())) parsedStart = parsed;
-    }
-
-    if (typeof endDate === 'string') {
-      const parsed = new Date(endDate);
-      if (!isNaN(parsed.getTime())) parsedEnd = parsed;
-    }
-
-    if (!parsedStart) {
-      parsedStart = new Date();
-    }
-
-    if (!parsedEnd) {
-      parsedEnd = new Date();
-      parsedEnd.setDate(parsedEnd.getDate() + 7);
-    }
-
-    if (parsedStart !== startDate) setStartDate(parsedStart);
-    if (parsedEnd !== endDate) setEndDate(parsedEnd);
-  }, []);
-
   // Fetch events when filters change
   useEffect(() => {
     const fetchEvents = async () => {
-      if (!startDate || !endDate) return;
-      if (genres && location) {
-        const startDateTime =
-          new Date(startDate.setHours(0, 0, 0, 0)).toISOString().split('.')[0] + 'Z';
-        const endDateTime =
-          new Date(endDate.setHours(23, 59, 59, 999)).toISOString().split('.')[0] + 'Z';
+      if (!startDate || !endDate || !genres || !location) return;
 
-        console.log(startDateTime, endDateTime);
+      // Create new Date objects to avoid mutating the original dates
+      const startDateTime = new Date(startDate);
+      startDateTime.setHours(0, 0, 0, 0);
 
-        try {
-          setIsLoadingEvents(true);
-          const events = await getEvents({
-            classificationName: 'music',
-            startDateTime,
-            endDateTime,
-            latlong: [location.lat, location.lng],
-            radius: 20,
-            unit: 'km',
-            genreId: genres.map((genre) => genre.id),
-          });
-          setEvents(events);
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setIsLoadingEvents(false);
-        }
+      const endDateTime = new Date(endDate);
+      endDateTime.setHours(23, 59, 59, 999);
+
+      const startISOString = startDateTime.toISOString().split('.')[0] + 'Z';
+      const endISOString = endDateTime.toISOString().split('.')[0] + 'Z';
+
+      console.log('Fetching events:', { startISOString, endISOString });
+
+      try {
+        setIsLoadingEvents(true);
+        const events = await getEvents({
+          classificationName: 'music',
+          startDateTime: startISOString,
+          endDateTime: endISOString,
+          latlong: [location.lat, location.lng],
+          radius: 20,
+          unit: 'km',
+          genreId: genres.map((genre) => genre.id),
+        });
+        setEvents(events);
+      } catch (error) {
+        console.error('Error fetching events:', error);
+      } finally {
+        setIsLoadingEvents(false);
       }
     };
 
     fetchEvents();
   }, [genres, location, startDate, endDate]);
 
-  if (isCompilingGenres) {
+  // Show loading while compiling genres or loading date range
+  if (isCompilingGenres || isLoadingDateRange) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Compiling genres...</Text>
+        <ActivityIndicator size="large" color="#1DB954" />
+        <Text style={styles.loadingText}>
+          {isCompilingGenres ? 'Compiling genres...' : 'Loading...'}
+        </Text>
       </View>
     );
   }
 
-  if (isLoadingEvents || !startDate || !endDate) {
+  if (!startDate || !endDate) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#1DB954" />
+        <Text style={styles.loadingText}>Initializing...</Text>
+      </View>
+    );
+  }
+
+  if (isLoadingEvents) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#1DB954" />
@@ -134,7 +132,6 @@ export default function Home() {
           alignItems: 'center',
           width: '100%',
         }}>
-        {/* LocationPicker now handles displaying the selected location */}
         <LocationPicker />
 
         <FlatList
@@ -143,80 +140,71 @@ export default function Home() {
           style={styles.flatList}
           ListHeaderComponent={() => (
             <View style={styles.headerContainer}>
-              {/* Simplified header with only date pickers */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  marginTop: 20,
-                  marginBottom: 20,
-                  gap: 20,
-                  paddingHorizontal: 16,
-                }}>
+              {/* Date pickers */}
+              <View style={styles.datePickerContainer}>
                 {/* Start Date */}
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: 'white', marginBottom: 4 }}>Start Date</Text>
+                <View style={styles.datePickerWrapper}>
+                  <Text style={styles.dateLabel}>Start Date</Text>
                   {Platform.OS === 'ios' ? (
+                    <View>
+                      <DateTimePicker
+                        themeVariant="dark"
+                        value={startDate}
+                        mode="date"
+                        display="default"
+                        onChange={(event, date) => {
+                          if (date) setStartDate(date);
+                        }}
+                        style={{ width: '100%' }}
+                      />
+                    </View>
+                  ) : (
+                    <Pressable onPress={() => setShowDatePicker('start')}>
+                      <Text style={styles.datePickerText}>📅 {startDate.toLocaleDateString()}</Text>
+                    </Pressable>
+                  )}
+                  {showDatePicker === 'start' && Platform.OS !== 'ios' && (
                     <DateTimePicker
-                      themeVariant="dark"
-                      value={new Date(startDate)}
+                      value={startDate}
                       mode="date"
-                      display="default"
                       onChange={(event, date) => {
                         if (date) setStartDate(date);
+                        setShowDatePicker(null);
                       }}
                     />
-                  ) : (
-                    <>
-                      <Pressable onPress={() => setShowDatePicker('start')}>
-                        <Text style={{ color: 'white', fontSize: 16 }}>
-                          📅 {startDate.toLocaleDateString()}
-                        </Text>
-                      </Pressable>
-                      {showDatePicker === 'start' && (
-                        <DateTimePicker
-                          value={new Date(startDate)}
-                          mode="date"
-                          onChange={(event, date) => {
-                            if (date) setStartDate(date);
-                            setShowDatePicker(null);
-                          }}
-                        />
-                      )}
-                    </>
                   )}
                 </View>
 
                 {/* End Date */}
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: 'white', marginBottom: 4 }}>End Date</Text>
+                <View style={styles.datePickerWrapper}>
+                  <Text style={styles.dateLabel}>End Date</Text>
                   {Platform.OS === 'ios' ? (
+                    <View>
+                      <DateTimePicker
+                        themeVariant="dark"
+                        value={endDate}
+                        mode="date"
+                        display="default"
+                        onChange={(event, date) => {
+                          if (date) setEndDate(date);
+                        }}
+                        style={{ width: '100%' }}
+                      />
+                    </View>
+                  ) : (
+                    <Pressable onPress={() => setShowDatePicker('end')}>
+                      <Text style={styles.datePickerText}>📅 {endDate.toLocaleDateString()}</Text>
+                    </Pressable>
+                  )}
+                  {showDatePicker === 'end' && Platform.OS !== 'ios' && (
                     <DateTimePicker
-                      themeVariant="dark"
-                      value={new Date(endDate)}
+                      value={endDate}
                       mode="date"
-                      display="default"
                       onChange={(event, date) => {
                         if (date) setEndDate(date);
+                        setShowDatePicker(null);
                       }}
                     />
-                  ) : (
-                    <>
-                      <Pressable onPress={() => setShowDatePicker('end')}>
-                        <Text style={{ color: 'white', fontSize: 16 }}>
-                          📅 {endDate.toLocaleDateString()}
-                        </Text>
-                      </Pressable>
-                      {showDatePicker === 'end' && (
-                        <DateTimePicker
-                          value={new Date(endDate)}
-                          mode="date"
-                          onChange={(event, date) => {
-                            if (date) setEndDate(date);
-                            setShowDatePicker(null);
-                          }}
-                        />
-                      )}
-                    </>
                   )}
                 </View>
               </View>
@@ -256,69 +244,38 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
   },
-  topRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    gap: 12,
-    height: 48, // Fixed height for both containers
-  },
-  dateRangeWrapper: {
-    flex: 1,
-    height: 48, // Same height as location
-  },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2a2a2a',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    flex: 1,
-    height: 48, // Same height as date range
-    justifyContent: 'center',
-  },
-  locationText: {
-    color: 'white',
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  dateRangeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#2a2a2a',
-    borderRadius: 12,
-    padding: 8, // Reduced padding for better fit
-    height: 48, // Fixed height
-    flex: 1,
-  },
   datePickerContainer: {
-    flex: 1,
-    alignItems: 'center',
+    flexDirection: 'row',
+    marginTop: 20,
+    marginBottom: 20,
+    gap: 10,
+    paddingHorizontal: 16,
   },
-  dateButton: {
+  datePickerWrapper: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: 8,
+    justifyContent: 'center',
+    width: '100%',
   },
   dateLabel: {
-    color: '#999',
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  dateText: {
     color: 'white',
+    marginBottom: 8,
+    alignSelf: 'center',
     fontSize: 14,
     fontWeight: '500',
   },
-  arrowContainer: {
-    paddingHorizontal: 12,
+  datePickerText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
     marginBottom: 16,
+    paddingHorizontal: 16,
   },
   contentContainer: {
     paddingHorizontal: 16,

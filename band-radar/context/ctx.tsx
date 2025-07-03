@@ -1,6 +1,7 @@
+// context/ctx.tsx
 import { use, createContext, type PropsWithChildren, useEffect, useState } from 'react';
 import { useStorageState } from './useStorageState';
-import { extractUserPlaylistGenres, GenreCount } from '~/utils/playlists';
+import { extractUserPlaylistGenres } from '~/utils/playlists';
 import { genreMap } from '~/constants';
 
 export type Session = {
@@ -64,7 +65,7 @@ const AuthContext = createContext<{
   favoriteIds: string[] | null;
   setFavoriteIds: (ids: string[]) => void;
 
-  // Replace single date with date range
+  // Date range with proper Date objects
   isLoadingDateRange: boolean;
   startDate: Date | null;
   endDate: Date | null;
@@ -122,11 +123,57 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoadingFavoriteIds, favoriteIds], setFavoriteIds] =
     useStorageState<string[]>('favoriteConcerts');
 
-  // Replace single date with date range
-  const [[isLoadingStartDate, startDate], setStartDate] = useStorageState<Date | null>('startDate');
-  const [[isLoadingEndDate, endDate], setEndDate] = useStorageState<Date | null>('endDate');
+  // Use state hooks for date storage with proper parsing
+  const [[isLoadingStartDateStorage, startDateStorage], setStartDateStorage] = useStorageState<
+    string | null
+  >('startDate');
+  const [[isLoadingEndDateStorage, endDateStorage], setEndDateStorage] = useStorageState<
+    string | null
+  >('endDate');
 
-  const isLoadingDateRange = isLoadingStartDate || isLoadingEndDate;
+  // Local state for actual Date objects
+  const [startDate, setStartDateLocal] = useState<Date | null>(null);
+  const [endDate, setEndDateLocal] = useState<Date | null>(null);
+
+  const isLoadingDateRange = isLoadingStartDateStorage || isLoadingEndDateStorage;
+
+  // Initialize dates from storage or set defaults
+  useEffect(() => {
+    if (!isLoadingStartDateStorage && !isLoadingEndDateStorage) {
+      let parsedStart: Date;
+      let parsedEnd: Date;
+
+      if (startDateStorage) {
+        const parsed = new Date(startDateStorage);
+        parsedStart = !isNaN(parsed.getTime()) ? parsed : new Date();
+      } else {
+        parsedStart = new Date();
+      }
+
+      if (endDateStorage) {
+        const parsed = new Date(endDateStorage);
+        parsedEnd = !isNaN(parsed.getTime())
+          ? parsed
+          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      } else {
+        parsedEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      }
+
+      setStartDateLocal(parsedStart);
+      setEndDateLocal(parsedEnd);
+    }
+  }, [isLoadingStartDateStorage, isLoadingEndDateStorage, startDateStorage, endDateStorage]);
+
+  // Custom setters that update both local state and storage
+  const setStartDate = (date: Date | null) => {
+    setStartDateLocal(date);
+    setStartDateStorage(date ? date.toISOString() : null);
+  };
+
+  const setEndDate = (date: Date | null) => {
+    setEndDateLocal(date);
+    setEndDateStorage(date ? date.toISOString() : null);
+  };
 
   const toggleFavorite = (id: string) => {
     if (favoriteIds && favoriteIds.includes(id)) {

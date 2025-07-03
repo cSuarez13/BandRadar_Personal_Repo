@@ -2,7 +2,9 @@ import { Event } from '~/types';
 
 export async function getEvent(id: string): Promise<Event | null> {
   try {
-    const response = await fetch(`/api/ticketmaster/event/${id}`);
+    const response = await fetch(
+      process.env.EXPO_PUBLIC_API_BASE_URL + `/api/ticketmaster/event/${id}`
+    );
 
     const data = await response.json();
 

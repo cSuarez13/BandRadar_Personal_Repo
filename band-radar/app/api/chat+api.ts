@@ -1,24 +1,53 @@
 import { anthropic } from '@ai-sdk/anthropic';
-import { streamText, tool } from 'ai';
+import { generateText, streamText, tool } from 'ai';
 import z from 'zod';
+import { genreMap } from '~/constants';
+import { getEvents } from '~/utils/events';
+import { llmEvents } from '~/utils/llm_events';
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  const { messages, location, genres } = await req.json();
 
   const result = streamText({
     model: anthropic('claude-3-haiku-20240307'),
     messages,
     tools: {
-      weather: tool({
-        description: 'Get the weather in a location (fahrenheit)',
+      eventfinder: tool({
+        description: 'Find events in a location',
         parameters: z.object({
-          location: z.string().describe('The location to get the weather for'),
+          location_latitude: z.number().describe('The latitude of the location to find events for'),
+          location_longitude: z
+            .number()
+            .describe('The longitude of the location to find events for'),
+          genres: z.array(z.string()).describe('The genres to find events for'),
+          dateStart: z.string().describe('The start date to find events for'),
+          dateEnd: z.string().describe('The end date to find events for'),
         }),
-        execute: async ({ location }) => {
-          const temperature = Math.round(Math.random() * (90 - 32) + 32);
+        execute: async ({ location_latitude, location_longitude, genres, dateStart, dateEnd }) => {
+          const mappedGenres = await llmEvents(genres);
+
+          if ('error' in mappedGenres) {
+            return {
+              error: mappedGenres.error,
+              details: mappedGenres.details,
+            };
+          }
+
+          const events = await getEvents({
+            classificationName: 'Music',
+            startDateTime: dateStart,
+            endDateTime: dateEnd,
+            latlong: [location.latitude, location.longitude],
+            radius: 100,
+            unit: 'km',
+            genreId: mappedGenres,
+          });
+
           return {
-            location,
-            temperature,
+            mappedGenres,
+            originalGenres: genres,
+            events,
+            message: `Successfully mapped ${genres.length} genres to ${mappedGenres.length} Ticketmaster genre IDs and found ${events?._embedded?.events?.length} events`,
           };
         },
       }),

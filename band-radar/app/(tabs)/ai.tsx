@@ -18,13 +18,19 @@ import {
   ChatBubbleTimestamp,
 } from '~/components/ChatBubble';
 import { Fragment } from 'react/jsx-runtime';
+import { useSession } from '~/context/ctx';
 
 export default function Ai() {
+  const { location, genres } = useSession();
   const { messages, error, handleInputChange, input, handleSubmit } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: generateAPIUrl('/api/chat'),
     onError: (error) => console.error(error, 'ERROR'),
     maxSteps: 5,
+    body: {
+      location,
+      genres,
+    },
   });
 
   if (error) return <Text>{error.message}</Text>;
@@ -40,46 +46,47 @@ export default function Ai() {
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled">
-            {messages.map((m) => (
-              <Fragment key={m.id}>
-                {m.parts.map((p, i) => {
-                  if (p.type === 'text') {
-                    return (
-                      <Fragment key={`${p.type}-${i}`}>
-                        <ChatBubble
-                          variant={m.role === 'user' ? 'sent' : 'received'}
-                          style={{ marginVertical: 8 }}>
-                          <ChatBubbleAvatar
-                            fallback={m.role === 'user' ? 'U' : 'AI'}
-                            style={{ width: 24, height: 24 }}
-                          />
-                          <ChatBubbleMessage variant={m.role === 'user' ? 'sent' : 'received'}>
-                            <Text style={{ color: 'black' }}>{m.content}</Text>
-                            <ChatBubbleTimestamp timestamp={new Date().toLocaleTimeString()} />
-                          </ChatBubbleMessage>
-                        </ChatBubble>
-                      </Fragment>
-                    );
-                  }
-
-                  if (p.type === 'tool-invocation') {
-                    if (p.toolInvocation.toolName === 'weather') {
+            {messages.map((m) => {
+              return (
+                <Fragment key={m.id}>
+                  {m.parts.map((p, i) => {
+                    if (p.type === 'text') {
                       return (
                         <Fragment key={`${p.type}-${i}`}>
                           <ChatBubble
                             variant={m.role === 'user' ? 'sent' : 'received'}
                             style={{ marginVertical: 8 }}>
-                            <Text style={{ color: 'white', fontSize: 12, paddingLeft: 32 }}>
-                              Calling: {p.toolInvocation.toolName}
-                            </Text>
+                            <ChatBubbleAvatar
+                              fallback={m.role === 'user' ? 'U' : 'AI'}
+                              style={{ width: 24, height: 24 }}
+                            />
+                            <ChatBubbleMessage variant={m.role === 'user' ? 'sent' : 'received'}>
+                              <Text style={{ color: 'black' }}>{p.text}</Text>
+                            </ChatBubbleMessage>
                           </ChatBubble>
                         </Fragment>
                       );
                     }
-                  }
-                })}
-              </Fragment>
-            ))}
+
+                    if (p.type === 'tool-invocation') {
+                      if (p.toolInvocation.toolName === 'eventfinder') {
+                        return (
+                          <Fragment key={`${p.type}-${i}`}>
+                            <ChatBubble
+                              variant={m.role === 'user' ? 'sent' : 'received'}
+                              style={{ marginVertical: 8 }}>
+                              <Text style={{ color: 'white', fontSize: 12, paddingLeft: 32 }}>
+                                {JSON.stringify(p.toolInvocation, null, 2)}
+                              </Text>
+                            </ChatBubble>
+                          </Fragment>
+                        );
+                      }
+                    }
+                  })}
+                </Fragment>
+              );
+            })}
           </ScrollView>
 
           <View

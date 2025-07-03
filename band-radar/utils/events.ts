@@ -18,24 +18,33 @@ export async function getEvents({
   genreId: string[];
 }): Promise<TicketmasterEventResponse | null> {
   try {
-    const response = await fetch('/api/ticketmaster/events', {
-      method: 'POST',
-      body: JSON.stringify({
-        classificationName,
-        startDateTime,
-        endDateTime,
-        latlong,
-        radius,
-        unit,
-        genreId,
-      }),
-    });
+    const response = await fetch(
+      process.env.EXPO_PUBLIC_API_BASE_URL + '/api/ticketmaster/events',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          classificationName,
+          startDateTime,
+          endDateTime,
+          latlong,
+          radius,
+          unit,
+          genreId,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
     const data = await response.json();
-
     return data;
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching events:', error);
     return null;
   }
 }

@@ -94,6 +94,13 @@ export default function Home() {
     fetchEvents();
   }, [genres, location, startDate, endDate]);
 
+  useEffect(() => {
+    if (!startDate || !endDate) {
+      setEndDate(new Date(new Date().setDate(new Date().getDate() + 7)));
+      setStartDate(new Date());
+    }
+  }, [startDate, endDate]);
+
   // Show loading while compiling genres or loading date range
   if (isCompilingGenres || isLoadingDateRange) {
     return (
@@ -247,7 +254,6 @@ const styles = StyleSheet.create({
   },
   datePickerContainer: {
     flexDirection: 'row',
-    marginTop: 20,
     marginBottom: 20,
     gap: 10,
     paddingHorizontal: 16,
@@ -275,8 +281,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 16,
-    paddingHorizontal: 16,
   },
   contentContainer: {
     paddingHorizontal: 16,

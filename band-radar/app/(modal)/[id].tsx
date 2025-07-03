@@ -167,7 +167,7 @@ export default function Id() {
     );
   }
 
-  const eventImage = data.images?.[1]?.url ? data.images?.[1]?.url : data.images?.[0]?.url;
+  const eventImage = data.images?.find((a) => a.width < 1000)?.url || data.images?.[0]?.url;
   const eventName = data.name;
   const eventInfo = data.info;
   const eventNote = data.pleaseNote;
@@ -201,7 +201,9 @@ export default function Id() {
         <View style={styles.card}>
           <Text style={styles.section}>Date & Time</Text>
           <Text style={styles.text}>
-            {date} {time ? `at ${time}` : ''} {timezone ? `(${timezone})` : ''}
+            {new Date(date).toLocaleDateString()}{' '}
+            {time ? `at ${time.split(':')[0]}:${time.split(':')[1]}` : ''}{' '}
+            {timezone ? `(${timezone})` : ''}
           </Text>
         </View>
 
@@ -257,7 +259,9 @@ export default function Id() {
             <Text style={styles.ticketText}>Buy Tickets on Ticketmaster</Text>
           </TouchableOpacity>
           {sales?.public?.startDateTime && (
-            <Text style={styles.text}>Sales Start: {sales.public.startDateTime}</Text>
+            <Text style={styles.text}>
+              Sales Start: {new Date(sales.public.startDateTime).toLocaleDateString()}
+            </Text>
           )}
         </View>
 

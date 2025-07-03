@@ -152,7 +152,8 @@ export default function ConcertMapPage() {
     const state = venue?.state?.name;
     const date = selectedEvent.dates?.start?.localDate;
     const time = selectedEvent.dates?.start?.localTime;
-    const eventImage = selectedEvent.images?.[1]?.url || selectedEvent.images?.[0]?.url;
+    const eventImage =
+      selectedEvent.images.find((a) => a.width < 1000)?.url || selectedEvent.images?.[0]?.url;
     const isFavorite = favoriteIds && favoriteIds.includes(selectedEvent.id);
 
     return (

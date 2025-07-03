@@ -57,6 +57,7 @@ export const eventDetailStyles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginBottom: 4,
+    marginTop: 4,
   },
   bold: {
     fontWeight: 'bold',
@@ -89,7 +90,6 @@ export const eventDetailStyles = StyleSheet.create({
     justifyContent: 'center',
     gap: 12,
     marginTop: 12,
-    marginBottom: 16,
   },
   link: {
     color: '#1e90ff',

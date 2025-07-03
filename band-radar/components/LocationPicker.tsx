@@ -151,6 +151,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     zIndex: 1000,
+    borderBottomWidth: 1,
+    borderColor: 'rgba(0, 255, 65, 0.3)',
   },
   locationInputContainer: {
     flexDirection: 'row',

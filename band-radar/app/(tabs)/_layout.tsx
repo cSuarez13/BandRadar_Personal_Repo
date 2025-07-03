@@ -29,7 +29,7 @@ export default function AppLayout() {
           title: 'Recommended',
           headerTitleAlign: 'center',
 
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="home" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={18} name="home" color={color} />,
           headerLeft: () => (
             <View style={{ ...styles.circle, marginLeft: 20, marginRight: 10 }}>
               <Image
@@ -50,10 +50,30 @@ export default function AppLayout() {
         name="favorites"
         options={{
           title: 'Favorites',
-          headerTitleAlign: 'center',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="star" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={18} name="star" color={color} />,
           headerLeft: () => (
-            <View style={{ ...styles.circle, marginLeft: 20, marginRight: 10 }}>
+            <View style={{ ...styles.circle, marginLeft: 10 }}>
+              <Image
+                source={imageUrl}
+                style={styles.icon}
+                resizeMode="contain" // Ensures the whole image fits inside
+              />
+            </View>
+          ),
+          headerRight: () => (
+            <Pressable onPress={() => signOut()} style={{ marginRight: 10 }}>
+              <Ionicons name="log-out-outline" size={24} color="black" />
+            </Pressable>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="ai"
+        options={{
+          title: 'RadarBot',
+          tabBarIcon: ({ color }) => <FontAwesome size={18} name="comment" color={color} />,
+          headerLeft: () => (
+            <View style={{ ...styles.circle, marginLeft: 10 }}>
               <Image
                 source={imageUrl}
                 style={styles.icon}
@@ -73,7 +93,7 @@ export default function AppLayout() {
         options={{
           title: 'Maps',
           headerTitleAlign: 'center',
-          tabBarIcon: ({ color }) => <FontAwesome size={28} name="map" color={color} />,
+          tabBarIcon: ({ color }) => <FontAwesome size={18} name="map" color={color} />,
           headerLeft: () => (
             <View style={{ ...styles.circle, marginLeft: 20, marginRight: 10 }}>
               <Image
@@ -85,7 +105,7 @@ export default function AppLayout() {
           ),
           headerRight: () => (
             <Pressable onPress={() => signOut()} style={{ marginRight: 10 }}>
-              <Ionicons name="log-out-outline" size={28} color="black" />
+              <Ionicons name="log-out-outline" size={24} color="black" />
             </Pressable>
           ),
         }}

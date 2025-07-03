@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 import { SplashScreenController } from '~/components/Splash';
 import { SessionProvider, useSession } from '~/context/ctx';
+import '~/polyfills';
 
 export default function Root() {
   return (

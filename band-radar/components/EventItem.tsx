@@ -4,7 +4,13 @@ import { Event } from '~/types';
 import { useSession } from '~/context/ctx';
 import { Ionicons } from '@expo/vector-icons';
 
-export default function EventItem({ item }: { item: Event }) {
+export default function EventItem({
+  item,
+  size = 'large',
+}: {
+  item: Event;
+  size?: 'small' | 'large';
+}) {
   const { toggleFavorite, favoriteIds } = useSession();
   return (
     <TouchableOpacity
@@ -50,7 +56,7 @@ export default function EventItem({ item }: { item: Event }) {
       </View>
 
       {/* Concert image */}
-      {item.images?.[0]?.url && (
+      {item.images?.[0]?.url && size === 'large' && (
         <Image
           source={{ uri: item.images[1].url ? item.images[1].url : item.images[0].url }}
           style={{

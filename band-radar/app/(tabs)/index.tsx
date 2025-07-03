@@ -10,20 +10,25 @@ import { TicketmasterEventResponse } from '~/types';
 import { getEvents } from '~/utils/events';
 
 export default function Home() {
-  const { isCompilingGenres, genres, location } = useSession();
+  const { isCompilingGenres, genres, location, date, setDate, isLoadingDate } = useSession();
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [events, setEvents] = useState<TicketmasterEventResponse | null>(null);
-  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  useEffect(() => {
+    if (!date) {
+      setDate(new Date());
+    }
+  }, [date]);
 
   useEffect(() => {
     const fetchEvents = async () => {
+      if (!date) return;
       if (genres && location) {
-        const startDateTime =
-          new Date(selectedDate.setHours(0, 0, 0, 0)).toISOString().split('.')[0] + 'Z';
+        const startDateTime = new Date(date.setHours(0, 0, 0, 0)).toISOString().split('.')[0] + 'Z';
         const endDateTime =
-          new Date(selectedDate.setHours(23, 59, 59, 999)).toISOString().split('.')[0] + 'Z';
+          new Date(date.setHours(23, 59, 59, 999)).toISOString().split('.')[0] + 'Z';
 
         console.log(startDateTime, endDateTime);
 
@@ -34,7 +39,7 @@ export default function Home() {
             startDateTime,
             endDateTime,
             latlong: [location.lat, location.lng],
-            radius: 100,
+            radius: 20,
             unit: 'km',
             genreId: genres.map((genre) => genre.id),
           });
@@ -48,7 +53,7 @@ export default function Home() {
     };
 
     fetchEvents();
-  }, [genres, location, selectedDate]);
+  }, [genres, location, date]);
 
   // Show loading indicators for genres or events
   if (isCompilingGenres) {
@@ -65,7 +70,7 @@ export default function Home() {
     );
   }
 
-  if (isLoadingEvents) {
+  if (isLoadingEvents || !date) {
     return (
       <View
         style={{
@@ -116,27 +121,27 @@ export default function Home() {
                 {Platform.OS === 'ios' ? (
                   <DateTimePicker
                     themeVariant="dark"
-                    value={selectedDate}
+                    value={new Date(date) || new Date()}
                     mode="date"
                     display="default"
                     onChange={(event, date) => {
-                      if (date) setSelectedDate(date);
+                      if (date) setDate(date);
                     }}
                   />
                 ) : (
                   <>
                     <Pressable onPress={() => setShowDatePicker(true)}>
                       <Text style={{ color: 'white', fontSize: 16 }}>
-                        📅 {selectedDate.toLocaleDateString()}
+                        📅 {date && new Date(date).toLocaleDateString()}
                       </Text>
                     </Pressable>
 
                     {showDatePicker && (
                       <DateTimePicker
-                        value={selectedDate}
+                        value={new Date(date) || new Date()}
                         mode="date"
                         onChange={(event, date) => {
-                          if (date) setSelectedDate(date);
+                          if (date) setDate(date);
                           setShowDatePicker(false);
                         }}
                       />

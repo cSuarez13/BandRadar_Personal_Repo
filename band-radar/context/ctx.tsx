@@ -2,7 +2,6 @@ import { use, createContext, type PropsWithChildren, useEffect, useState } from 
 import { useStorageState } from './useStorageState';
 import { extractUserPlaylistGenres, GenreCount } from '~/utils/playlists';
 import { genreMap } from '~/constants';
-import { refreshToken } from '~/utils/refresh';
 
 export type Session = {
   token: {
@@ -64,6 +63,10 @@ const AuthContext = createContext<{
   isLoadingFavoriteIds: boolean;
   favoriteIds: string[] | null;
   setFavoriteIds: (ids: string[]) => void;
+
+  isLoadingDate: boolean;
+  date: Date | null;
+  setDate: (date: Date | null) => void;
 }>({
   signIn: () => null,
   signOut: () => null,
@@ -84,6 +87,10 @@ const AuthContext = createContext<{
   isLoadingFavoriteIds: false,
   favoriteIds: [],
   setFavoriteIds: () => null,
+
+  isLoadingDate: false,
+  date: new Date(),
+  setDate: () => null,
 });
 
 // This hook can be used to access the user info.
@@ -110,6 +117,8 @@ export function SessionProvider({ children }: PropsWithChildren) {
   const [[isLoadingFavoriteIds, favoriteIds], setFavoriteIds] =
     useStorageState<string[]>('favoriteConcerts');
 
+  const [[isLoadingDate, date], setDate] = useStorageState<Date | null>('date');
+
   const toggleFavorite = (id: string) => {
     if (favoriteIds && favoriteIds.includes(id)) {
       setFavoriteIds(favoriteIds.filter((favId) => favId !== id));
@@ -122,13 +131,10 @@ export function SessionProvider({ children }: PropsWithChildren) {
     if (session && !genres) {
       async function getGenres() {
         if (!session) return;
-
-        const refreshedTokens = await refreshToken(session.token.refresh_token);
-
         try {
           setIsCompilingGenres(true);
 
-          const genres = await extractUserPlaylistGenres(refreshedTokens.access_token);
+          const genres = await extractUserPlaylistGenres(session.token.access_token);
 
           // Mapping Spotify genres to Ticketmaster genres, and removing duplicates
           const mappedGenres = genres
@@ -199,6 +205,9 @@ export function SessionProvider({ children }: PropsWithChildren) {
         isLoadingFavoriteIds,
         favoriteIds,
         setFavoriteIds,
+        isLoadingDate,
+        date,
+        setDate,
       }}>
       {children}
     </AuthContext>

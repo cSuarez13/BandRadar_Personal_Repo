@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import EventItem from '~/components/EventItem';
 import { useSession } from '~/context/ctx';
+import { Event } from '~/types';
 import { getEvent } from '~/utils/event';
 
 export default function Favorites() {
-  // Load favorite concert IDs from storage
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const { favoriteIds } = useSession();
 
@@ -20,7 +20,7 @@ export default function Favorites() {
       try {
         // Fetch each favorite event by ID
         const results = await Promise.all(favoriteIds.map((id) => getEvent(id)));
-        setEvents(results.filter(Boolean)); // Remove nulls
+        setEvents(results.filter((result): result is Event => result !== null));
       } finally {
         setLoading(false);
       }

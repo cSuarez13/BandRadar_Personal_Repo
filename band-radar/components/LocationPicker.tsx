@@ -4,6 +4,7 @@ import { useSession } from '~/context/ctx';
 import GooglePlacesTextInput, { Place } from 'react-native-google-places-textinput';
 import { Text, View, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { fetchPlaceDetails } from '~/utils/place_details';
 
 export default function LocationPicker() {
   const { location, setLocation } = useSession();
@@ -62,23 +63,13 @@ export default function LocationPicker() {
     }
   };
 
-  const handlePlaceSelect = (place: Place) => {
-    fetchPlaceDetails(place.placeId, place.structuredFormat.mainText.text);
-  };
-
-  const fetchPlaceDetails = async (placeId: string, placeName: string) => {
-    try {
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
-      );
-      const data = await response.json();
-
-      if (data.result && data.result.geometry && data.result.geometry.location) {
-        const { lat, lng } = data.result.geometry.location;
-        setLocation({ lat, lng, placeName });
-      }
-    } catch (error) {
-      console.log('Error fetching place details:', error);
+  const handlePlaceSelect = async (place: Place) => {
+    const placeDetails = await fetchPlaceDetails(
+      place.placeId,
+      place.structuredFormat.mainText.text
+    );
+    if (placeDetails) {
+      setLocation(placeDetails);
     }
   };
 

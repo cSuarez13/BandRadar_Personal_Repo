@@ -22,6 +22,8 @@ import { useSession } from '~/context/ctx';
 
 export default function Ai() {
   const { location, genres } = useSession();
+  const currentDate = new Date().toISOString().split('T')?.[0];
+
   const { messages, error, handleInputChange, input, handleSubmit } = useChat({
     fetch: expoFetch as unknown as typeof globalThis.fetch,
     api: generateAPIUrl('/api/chat'),
@@ -30,6 +32,7 @@ export default function Ai() {
     body: {
       location,
       genres,
+      currentDate,
     },
   });
 

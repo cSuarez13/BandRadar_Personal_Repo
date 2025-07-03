@@ -34,7 +34,7 @@ export default function Home() {
             startDateTime,
             endDateTime,
             latlong: [location.lat, location.lng],
-            radius: 20,
+            radius: 100,
             unit: 'km',
             genreId: genres.map((genre) => genre.id),
           });

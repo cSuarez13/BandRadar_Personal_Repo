@@ -33,20 +33,19 @@ Response:`,
       if (jsonMatch) {
         mappedGenres = JSON.parse(jsonMatch[0]);
         if (!Array.isArray(mappedGenres)) {
-          mappedGenres = [];
+          throw new Error('Invalid JSON response');
         }
       } else {
         // If no JSON array found, try parsing the entire response
         mappedGenres = JSON.parse(text);
         if (!Array.isArray(mappedGenres)) {
-          mappedGenres = [];
+          throw new Error('Invalid JSON response');
         }
       }
 
       return mappedGenres;
     } catch (parseError) {
       console.error('Failed to parse LLM response as JSON:', parseError);
-      mappedGenres = [];
       return { error: 'Failed to parse LLM response as JSON', details: 'Unknown error' };
     }
   } catch (error) {

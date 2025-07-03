@@ -27,10 +27,11 @@ export default function AppLayout() {
         name="index"
         options={{
           title: 'Recommended',
+          headerTitleAlign: 'center',
 
           tabBarIcon: ({ color }) => <FontAwesome size={18} name="home" color={color} />,
           headerLeft: () => (
-            <View style={{ ...styles.circle, marginLeft: 10 }}>
+            <View style={{ ...styles.circle, marginLeft: 20, marginRight: 10 }}>
               <Image
                 source={imageUrl}
                 style={styles.icon}
@@ -91,9 +92,10 @@ export default function AppLayout() {
         name="maps"
         options={{
           title: 'Maps',
+          headerTitleAlign: 'center',
           tabBarIcon: ({ color }) => <FontAwesome size={18} name="map" color={color} />,
           headerLeft: () => (
-            <View style={{ ...styles.circle, marginLeft: 10 }}>
+            <View style={{ ...styles.circle, marginLeft: 20, marginRight: 10 }}>
               <Image
                 source={imageUrl}
                 style={styles.icon}

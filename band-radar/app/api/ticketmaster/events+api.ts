@@ -1,11 +1,10 @@
 export async function POST(request: Request) {
-  const { classificationName, startDateTime, endDateTime, latlong, radius, unit, genreId } =
+  const { classificationName, startDateTime, endDateTime, latlong, radius, unit, genreId, sort } =
     await request.json();
 
-  console.log(classificationName, startDateTime, endDateTime, latlong, radius, unit, genreId);
   try {
     const response = await fetch(
-      `https://app.ticketmaster.com/discovery/v2/events.json?classificationName=${classificationName}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&apikey=${process.env.TICKETMASTER_API_KEY}&latlong=${latlong.join(',')}&radius=${radius}&unit=${unit}&genreId=${genreId.join(',')}`
+      `https://app.ticketmaster.com/discovery/v2/events.json?classificationName=${classificationName}&startDateTime=${startDateTime}&endDateTime=${endDateTime}&apikey=${process.env.TICKETMASTER_API_KEY}&latlong=${latlong.join(',')}&radius=${radius}&unit=${unit}&genreId=${genreId.join(',')}&sort=${sort}`
     );
 
     const data = await response.json();

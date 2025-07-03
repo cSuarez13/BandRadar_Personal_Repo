@@ -8,6 +8,7 @@ export async function getEvents({
   radius,
   unit,
   genreId,
+  sort = 'date,asc',
 }: {
   classificationName: string;
   startDateTime: string;
@@ -16,6 +17,7 @@ export async function getEvents({
   radius: number;
   unit: string;
   genreId: string[];
+  sort?: string;
 }): Promise<TicketmasterEventResponse | null> {
   try {
     const response = await fetch(
@@ -33,6 +35,7 @@ export async function getEvents({
           radius,
           unit,
           genreId,
+          sort,
         }),
       }
     );

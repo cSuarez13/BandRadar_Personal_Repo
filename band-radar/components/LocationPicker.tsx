@@ -100,6 +100,7 @@ export default function LocationPicker() {
             onError={(error) => {
               console.log('Google Places API Error:', error);
             }}
+            placeHolderText={location?.placeName || 'Search for a location...'}
             style={{
               container: {
                 width: '100%',
@@ -128,6 +129,7 @@ export default function LocationPicker() {
                 main: { color: 'white' },
                 secondary: { color: 'white' },
               },
+              placeholder: { color: '#ccc' },
             }}
           />
         </View>

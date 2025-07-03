@@ -1,4 +1,3 @@
-// app/(tabs)/maps.tsx
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
@@ -28,7 +27,10 @@ export default function ConcertMapPage() {
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
+  const [mapReady, setMapReady] = useState(false);
+
   const modalizeRef = useRef<Modalize | null>(null);
+  const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -61,6 +63,58 @@ export default function ConcertMapPage() {
 
     fetchEvents();
   }, [genres, location, startDate, endDate]);
+
+  // Focus the map on the first event marker or user location when ready
+  useEffect(() => {
+    if (mapReady && mapRef.current) {
+      // Try to focus on the first event marker
+      if (events && events._embedded?.events.length > 0) {
+        const coords = events._embedded.events
+          .map((event) => {
+            const venue = event._embedded?.venues?.[0];
+            if (venue && venue.location) {
+              return {
+                latitude: parseFloat(venue.location.latitude),
+                longitude: parseFloat(venue.location.longitude),
+              };
+            }
+            return null;
+          })
+          .filter(Boolean);
+
+        if (coords.length === 1) {
+          // Focus on the single marker
+          mapRef.current.animateToRegion(
+            //@ts-ignore
+            {
+              ...coords[0],
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
+            },
+            500
+          );
+        } else if (coords.length > 1) {
+          // Fit all markers in view
+          //@ts-ignore
+          mapRef.current.fitToCoordinates(coords, {
+            edgePadding: { top: 80, right: 80, bottom: 80, left: 80 },
+            animated: true,
+          });
+        }
+      } else if (location) {
+        // No events: focus on user location
+        mapRef.current.animateToRegion(
+          {
+            latitude: location.lat,
+            longitude: location.lng,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          },
+          500
+        );
+      }
+    }
+  }, [mapReady, events, location]);
 
   const initialRegion = {
     latitude: location?.lat || 37.7749,
@@ -191,8 +245,14 @@ export default function ConcertMapPage() {
           </View>
         )}
 
-        <MapView style={styles.map} initialRegion={initialRegion}>
-          {location && (
+        <MapView
+          ref={mapRef}
+          style={styles.map}
+          initialRegion={initialRegion}
+          onMapReady={() => setMapReady(true)}
+          key={events ? events._embedded?.events.map(e => e.id).join(',') : 'no-events'}
+        >
+          {mapReady && location && (
             <Marker
               coordinate={{ latitude: location.lat, longitude: location.lng }}
               title="You are here"

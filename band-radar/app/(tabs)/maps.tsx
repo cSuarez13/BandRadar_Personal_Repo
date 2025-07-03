@@ -1,17 +1,17 @@
 // app/(tabs)/maps.tsx
-import React, { useEffect, useState, useRef } from 'react';
-import { View, ActivityIndicator, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { Modalize } from 'react-native-modalize';
-import { Ionicons } from '@expo/vector-icons';
+import React, {useEffect, useState, useRef} from 'react';
+import {View, ActivityIndicator, StyleSheet, Text, TouchableOpacity, Platform} from 'react-native';
+import MapView, {Marker} from 'react-native-maps';
+import {Modalize} from 'react-native-modalize';
+import {Ionicons} from '@expo/vector-icons';
 
-import { getEvents } from '~/utils/events';
-import { useSession } from '~/context/ctx';
-import { TicketmasterEventResponse, Event } from '~/types';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {getEvents} from '~/utils/events';
+import {useSession} from '~/context/ctx';
+import {TicketmasterEventResponse, Event} from '~/types';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 export default function ConcertMapPage() {
-  const { isCompilingGenres, genres, location, startDate, endDate } = useSession();
+  const {isCompilingGenres, genres, location, startDate, endDate} = useSession();
   const [events, setEvents] = useState<TicketmasterEventResponse | null>(null);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -95,7 +95,7 @@ export default function ConcertMapPage() {
     return (
       <View style={styles.noEventsOverlay}>
         <View style={styles.noEventsCard}>
-          <Ionicons name="musical-notes-outline" size={48} color="#666" />
+          <Ionicons name="musical-notes-outline" size={48} color="#666"/>
           <Text style={styles.noEventsTitle}>No concerts found</Text>
           <Text style={styles.noEventsText}>
             No concerts in {location?.placeName} between{'\n'}
@@ -111,7 +111,7 @@ export default function ConcertMapPage() {
       <View style={styles.container}>
         {isLoadingEvents && (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#00ff41" />
+            <ActivityIndicator size="large" color="#00ff41"/>
             <Text style={styles.loadingText}>Loading events...</Text>
           </View>
         )}
@@ -119,7 +119,7 @@ export default function ConcertMapPage() {
         <MapView style={styles.map} initialRegion={initialRegion}>
           {location && (
             <Marker
-              coordinate={{ latitude: location.lat, longitude: location.lng }}
+              coordinate={{latitude: location.lat, longitude: location.lng}}
               title="You are here"
               pinColor="blue"
             />
@@ -131,18 +131,28 @@ export default function ConcertMapPage() {
               const lat = parseFloat(venue.location.latitude);
               const lng = parseFloat(venue.location.longitude);
 
+              // Platform-specific props
+              const markerProps = Platform.select({
+                ios: {
+                  onSelect: () => {handleMarkerPress(event); },
+                },
+                android: {
+                  onPress: () => {handleMarkerPress(event); },
+                },
+              });
+
               return (
                 <Marker
                   key={event.id}
                   coordinate={{ latitude: lat, longitude: lng }}
-                  onPress={() => handleMarkerPress(event)}
                   pinColor="red"
+                  {...markerProps}
                 />
               );
             })}
         </MapView>
 
-        <NoEventsOverlay />
+        <NoEventsOverlay/>
 
         <Modalize
           ref={modalizeRef}
@@ -150,7 +160,7 @@ export default function ConcertMapPage() {
           handleStyle={styles.handle}
           adjustToContentHeight={false}
           modalHeight={400}
-          onClosed={() => setSelectedEvent(null)}>
+          onClosed={() => {setSelectedEvent(null)}}>
           {renderModalContent()}
         </Modalize>
       </View>
@@ -159,8 +169,8 @@ export default function ConcertMapPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  map: { flex: 1 },
+  container: {flex: 1},
+  map: {flex: 1},
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.7)',

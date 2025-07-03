@@ -1,10 +1,13 @@
 import { Event } from '~/types';
 
-export async function getEvent(id: string): Promise<Event | null> {
+export async function getEvent(id: string, baseURL?: string): Promise<Event | null> {
+  let url = `/api/ticketmaster/event/${id}`;
+
+  if (baseURL) {
+    url = baseURL + `/api/ticketmaster/event/${id}`;
+  }
   try {
-    const response = await fetch(
-      process.env.EXPO_PUBLIC_API_BASE_URL + `/api/ticketmaster/event/${id}`
-    );
+    const response = await fetch(url);
 
     const data = await response.json();
 

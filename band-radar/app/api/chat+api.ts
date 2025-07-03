@@ -68,6 +68,7 @@ export async function POST(req: Request) {
             radius: 100,
             unit: 'km',
             genreId: mappedGenres,
+            baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
           });
 
           return {

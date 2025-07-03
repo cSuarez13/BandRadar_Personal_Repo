@@ -9,6 +9,7 @@ export async function getEvents({
   unit,
   genreId,
   sort = 'date,asc',
+  baseURL,
 }: {
   classificationName: string;
   startDateTime: string;
@@ -18,27 +19,30 @@ export async function getEvents({
   unit: string;
   genreId: string[];
   sort?: string;
+  baseURL?: string;
 }): Promise<TicketmasterEventResponse | null> {
+  let url = '/api/ticketmaster/events';
+
+  if (baseURL) {
+    url = baseURL + '/api/ticketmaster/events';
+  }
   try {
-    const response = await fetch(
-      process.env.EXPO_PUBLIC_API_BASE_URL + '/api/ticketmaster/events',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          classificationName,
-          startDateTime,
-          endDateTime,
-          latlong,
-          radius,
-          unit,
-          genreId,
-          sort,
-        }),
-      }
-    );
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        classificationName,
+        startDateTime,
+        endDateTime,
+        latlong,
+        radius,
+        unit,
+        genreId,
+        sort,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

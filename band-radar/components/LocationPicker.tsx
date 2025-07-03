@@ -148,6 +148,13 @@ export default function LocationPicker() {
           <Ionicons name="locate" size={18} color={isGettingLocation ? '#666' : '#00ff41'} />
         </TouchableOpacity>
       </View>
+
+      {/* Display selected location */}
+      {location?.placeName && (
+        <View style={styles.selectedLocationContainer}>
+          <Text style={styles.selectedLocationText}>📍 {location.placeName}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -195,6 +202,19 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     borderRadius: 8,
     backgroundColor: 'rgba(0, 255, 65, 0.1)',
+  },
+  selectedLocationContainer: {
+    backgroundColor: '#2a2a2a',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 255, 65, 0.2)',
+  },
+  selectedLocationText: {
+    color: 'white',
+    fontSize: 16,
   },
   errorContainer: {
     padding: 16,

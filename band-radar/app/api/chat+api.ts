@@ -75,7 +75,7 @@ export async function POST(req: Request) {
             originalGenres: genres,
             place,
             placeDetails,
-            events: events?._embedded?.events.map((a) => a.name),
+            events: events?._embedded,
             message: `Successfully mapped ${genres.length} genres to ${mappedGenres.length} Ticketmaster genre IDs and found ${events?._embedded?.events?.length} events`,
           };
         },

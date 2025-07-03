@@ -19,6 +19,8 @@ import {
 } from '~/components/ChatBubble';
 import { Fragment } from 'react/jsx-runtime';
 import { useSession } from '~/context/ctx';
+import { Event } from '~/types';
+import EventItem from '~/components/EventItem';
 
 export default function Ai() {
   const { location, genres } = useSession();
@@ -73,17 +75,40 @@ export default function Ai() {
 
                     if (p.type === 'tool-invocation') {
                       if (p.toolInvocation.toolName === 'eventfinder') {
-                        return (
-                          <Fragment key={`${p.type}-${i}`}>
-                            <ChatBubble
-                              variant={m.role === 'user' ? 'sent' : 'received'}
-                              style={{ marginVertical: 8 }}>
-                              <Text style={{ color: 'white', fontSize: 12, paddingLeft: 32 }}>
-                                {JSON.stringify(p.toolInvocation, null, 2)}
-                              </Text>
-                            </ChatBubble>
-                          </Fragment>
-                        );
+                        if (p.toolInvocation.state === 'call') {
+                          return (
+                            <Fragment key={`${p.type}-${i}`}>
+                              <ChatBubble variant="received" style={{ marginVertical: 8 }}>
+                                <Text style={{ color: 'white', fontSize: 12, paddingLeft: 32 }}>
+                                  Loading events...
+                                </Text>
+                              </ChatBubble>
+                            </Fragment>
+                          );
+                        }
+
+                        if (p.toolInvocation.state === 'result') {
+                          console.log(p.toolInvocation.result);
+                          return (
+                            <Fragment key={`${p.type}-${i}`}>
+                              <ChatBubble
+                                variant={m.role === 'user' ? 'sent' : 'received'}
+                                style={{ marginTop: 8 }}>
+                                <View
+                                  style={{
+                                    paddingLeft: 32,
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                  }}>
+                                  {p.toolInvocation.result?.events?.events &&
+                                    p.toolInvocation.result.events?.events?.map((event: Event) => (
+                                      <EventItem key={event.id} item={event} size="small" />
+                                    ))}
+                                </View>
+                              </ChatBubble>
+                            </Fragment>
+                          );
+                        }
                       }
                     }
                   })}

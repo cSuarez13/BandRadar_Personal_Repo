@@ -10,6 +10,6 @@ export const fetchPlaceDetails = async (placeId: string, placeName: string) => {
       return { lat, lng, placeName };
     }
   } catch (error) {
-    console.log('Error fetching place details:', error);
+    console.error('Error fetching place details:', error);
   }
 };

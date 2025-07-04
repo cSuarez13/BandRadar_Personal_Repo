@@ -88,7 +88,6 @@ export default function Ai() {
                         }
 
                         if (p.toolInvocation.state === 'result') {
-                          console.log(p.toolInvocation.result);
                           return (
                             <Fragment key={`${p.type}-${i}`}>
                               <ChatBubble

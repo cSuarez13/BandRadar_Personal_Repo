@@ -70,8 +70,6 @@ export default function Home() {
       const startISOString = startDateTime.toISOString().split('.')[0] + 'Z';
       const endISOString = endDateTime.toISOString().split('.')[0] + 'Z';
 
-      console.log('Fetching events:', { startISOString, endISOString });
-
       try {
         setIsLoadingEvents(true);
         const events = await getEvents({

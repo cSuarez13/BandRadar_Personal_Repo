@@ -133,7 +133,6 @@ export default function SignIn() {
 
   useEffect(() => {
     const fetchTokens = async () => {
-      console.log('response', response);
       if (response?.type === 'success') {
         const { code } = response.params;
 

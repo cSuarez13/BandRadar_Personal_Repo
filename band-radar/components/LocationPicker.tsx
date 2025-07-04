@@ -98,7 +98,7 @@ export default function LocationPicker() {
             onPlaceSelect={handlePlaceSelect}
             fetchDetails={false}
             onError={(error) => {
-              console.log('Google Places API Error:', error);
+              console.error('Google Places API Error:', error);
             }}
             placeHolderText={location?.placeName || 'Search for a location...'}
             style={{

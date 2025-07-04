@@ -13,7 +13,7 @@ export default function EventItem({
 }) {
   const { toggleFavorite, favoriteIds } = useSession();
 
-  const image = item.images.find((image) => image.width < 1000) || item.images?.[0];
+  const image = item.images?.find((image) => image.width < 1000) || item.images?.[0];
 
   return (
     <TouchableOpacity
